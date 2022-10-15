@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GameRental.DBContext;
 using GameRental.Models;
+using Serilog;
 
 namespace GameRental.Controllers
 {
@@ -15,9 +16,11 @@ namespace GameRental.Controllers
     public class GamesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<GamesController> _logger;
 
-        public GamesController(AppDbContext context)
+        public GamesController(AppDbContext context, ILogger<GamesController> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -25,6 +28,7 @@ namespace GameRental.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Game>>> GetGames()
         {
+            this._logger.LogInformation("Log Information from GetGames() Method");
             return await _context.Games.ToListAsync();
         }
 
@@ -33,7 +37,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<Game>> GetGame(int id)
         {
 
-            var game = await _context.Games.FindAsync(id);
+            var game = await _context.Games.FirstAsync(g => g.GameId == id);
 
             if (game == null)
             {
