@@ -1,8 +1,14 @@
+using GameRental.DBContext;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnectionString")));
+// Replace registration with this line:
+builder.Services.AddScoped<DbConnectionInfo>();
 
 var app = builder.Build();
 
