@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "GameBuster": {
+    "GameRental": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "http://localhost:5148",
@@ -19,7 +19,7 @@
     },
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
+      "launchBrowser": false, // only serve backend
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
