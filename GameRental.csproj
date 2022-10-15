@@ -20,15 +20,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.10" />
   </ItemGroup>
 
-	<ItemGroup>
-		<None Remove="ClientApp\src\setupProxy.ts" />
-	</ItemGroup>
-
 
 	<ItemGroup>
-		<TypeScriptCompile Include="ClientApp\src\setupProxy.ts" />
+		<TypeScriptCompile Include="ClientApp\src\setupProxy.js" />
 	</ItemGroup>
 
 	<ItemGroup>

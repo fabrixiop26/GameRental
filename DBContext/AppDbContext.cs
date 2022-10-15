@@ -14,14 +14,11 @@ namespace GameRental.DBContext
         {
         }
         private readonly string _connectionString;
-        public AppDbContext(DbContextOptions<AppDbContext> options)
+        // inject configuration to avoid using hardcoded values in OnConfiguring
+        public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration config)
         : base(options)
         {
-        }
-
-        public AppDbContext(IOptions<DbConnectionInfo> dbConnectionInfo)
-        {
-            _connectionString = dbConnectionInfo.Value.DbConnectionString;
+            _connectionString = config.GetConnectionString("DbConnectionString");
         }
 
         public virtual DbSet<Character> Characters { get; set; } = null!;

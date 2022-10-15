@@ -1,14 +1,15 @@
 using GameRental.DBContext;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+// use lowercase in paths to avoid /products instead of /Products
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnectionString")));
-// Replace registration with this line:
-builder.Services.AddScoped<DbConnectionInfo>();
 
 var app = builder.Build();
 
@@ -19,7 +20,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
