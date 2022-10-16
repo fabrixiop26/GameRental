@@ -40,7 +40,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<IEnumerable<PlatformDTO>>> GetPlatforms()
         {
             var platforms = await _context.Platforms.ToListAsync();
-            return _mapper.Map<List<PlatformDTO>>(platforms);
+            return Ok(_mapper.Map<List<PlatformDTO>>(platforms));
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<PlatformDTO>(platform);
+            return Ok(_mapper.Map<PlatformDTO>(platform));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -87,7 +87,6 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPut("{id}")]
         public async Task<IActionResult> PutPlatform(int id, PlatformDTO platform)
         {
             var newPlatform = _mapper.Map<Platform>(platform);

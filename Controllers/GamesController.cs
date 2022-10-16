@@ -41,7 +41,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<IEnumerable<GameDTO>>> GetGames()
         {
            var games = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).ToListAsync();
-           return _mapper.Map<List<GameDTO>>(games);
+           return Ok(_mapper.Map<List<GameDTO>>(games));
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-            return _mapper.Map<GameDTO>(game);
+            return Ok(_mapper.Map<GameDTO>(game));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

@@ -39,7 +39,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents()
         {
             var rents = await _context.Rents.ToListAsync();
-            return _mapper.Map<List<RentDTO>>(rents);
+            return Ok(_mapper.Map<List<RentDTO>>(rents));
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<RentDTO>(rent);
+            return Ok(_mapper.Map<RentDTO>(rent));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

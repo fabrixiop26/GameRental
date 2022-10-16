@@ -40,7 +40,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<IEnumerable<CharacterDTO>>> GetCharacters()
         {
             var characters = await _context.Characters.ToListAsync();
-            return _mapper.Map<List<CharacterDTO>>(characters);
+            return Ok(_mapper.Map<List<CharacterDTO>>(characters));
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<CharacterDTO>(character);
+            return Ok(_mapper.Map<CharacterDTO>(character));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

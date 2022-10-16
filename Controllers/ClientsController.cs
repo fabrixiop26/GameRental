@@ -41,7 +41,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients()
         {
             var clients = await _context.Clients.ToListAsync();
-            return _mapper.Map<List<ClientDTO>>(clients);
+            return Ok(_mapper.Map<List<ClientDTO>>(clients));
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<ClientDTO>(client);
+            return Ok(_mapper.Map<ClientDTO>(client));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
