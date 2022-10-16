@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +26,6 @@ namespace GameRental.Models
 
         [ForeignKey("CharacterId")]
         [InverseProperty("Characters")]
-        [JsonIgnore]
         public virtual ICollection<Game> Games { get; set; }
     }
 }
