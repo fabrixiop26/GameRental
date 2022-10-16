@@ -135,7 +135,7 @@ namespace GameRental.Controllers
             var newGame = _mapper.Map<Game>(game);
             _context.Games.Add(newGame);
             await _context.SaveChangesAsync();
-
+            game.GameId = newGame.GameId;
             return CreatedAtAction("GetGame", new { id = game.GameId }, game);
         }
 

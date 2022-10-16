@@ -134,7 +134,7 @@ namespace GameRental.Controllers
             var newPlatform = _mapper.Map<Platform>(platform);
             _context.Platforms.Add(newPlatform);
             await _context.SaveChangesAsync();
-
+            platform.PlatformId = newPlatform.PlatformId;
             return CreatedAtAction("GetPlatform", new { id = platform.PlatformId }, platform);
         }
 

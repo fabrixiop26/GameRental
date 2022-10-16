@@ -133,7 +133,7 @@ namespace GameRental.Controllers
             var newRent = _mapper.Map<Rent>(rent);
             _context.Rents.Add(newRent);
             await _context.SaveChangesAsync();
-
+            rent.RentId = newRent.RentId;
             return CreatedAtAction("GetRent", new { id = rent.RentId }, rent);
         }
 

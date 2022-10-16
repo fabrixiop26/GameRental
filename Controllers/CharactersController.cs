@@ -135,7 +135,7 @@ namespace GameRental.Controllers
             var newCharacter = _mapper.Map<Character>(character);
             _context.Characters.Add(newCharacter);
             await _context.SaveChangesAsync();
-
+            character.CharacterId = newCharacter.CharacterId;
             return CreatedAtAction("GetCharacter", new { id = character.CharacterId }, character);
         }
 

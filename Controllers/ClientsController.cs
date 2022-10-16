@@ -135,7 +135,7 @@ namespace GameRental.Controllers
             var newClient = _mapper.Map<Client>(client);
             _context.Clients.Add(newClient);
             await _context.SaveChangesAsync();
-
+            client.ClientId = newClient.ClientId;
             return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
         }
 
