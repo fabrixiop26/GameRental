@@ -19,10 +19,10 @@
     },
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": false, // only serve backend
+      "launchUrl": "swagger",
+      "launchBrowser": true, // only serve backend
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
   }
