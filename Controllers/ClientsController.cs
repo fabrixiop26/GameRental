@@ -136,7 +136,7 @@ namespace GameRental.Controllers
             _context.Clients.Add(newClient);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetClient", new { id = newClient.ClientId }, newClient);
+            return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
         }
 
         /// <summary>
