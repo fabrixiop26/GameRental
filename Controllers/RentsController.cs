@@ -7,30 +7,56 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GameRental.DBContext;
 using GameRental.Models;
+using AutoMapper;
+using GameRental.DTOModels;
 
 namespace GameRental.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class RentsController : ControllerBase
     {
         private readonly AppDbContext _context;
-
-        public RentsController(AppDbContext context)
+        private readonly IMapper _mapper;
+        public RentsController(AppDbContext context, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
         }
 
-        // GET: api/Rents
+        /// <summary>
+        /// Returns the list of Rents
+        /// </summary>
+        /// <returns>a list of Rents</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/rents
+        /// </remarks>
+        /// <response code="200">Success</response>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Rent>>> GetRents()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents()
         {
-            return await _context.Rents.ToListAsync();
+            var rents = await _context.Rents.ToListAsync();
+            return _mapper.Map<List<RentDTO>>(rents);
         }
 
-        // GET: api/Rents/5
+        /// <summary>
+        /// Return a Rent by its id
+        /// </summary>
+        /// <param name="id">Id of the Rent</param>
+        /// <returns>a Rent</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/rents/5
+        /// </remarks>
+        /// <response code="200">Returns the Rent</response>
+        /// <response code="404">If the Rent was not found</response>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Rent>> GetRent(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<RentDTO>> GetRent(int id)
         {
             var rent = await _context.Rents.FindAsync(id);
 
@@ -39,20 +65,36 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return rent;
+            return _mapper.Map<RentDTO>(rent);
         }
 
-        // PUT: api/Rents/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates a Rent by its id
+        /// </summary>
+        /// <param name="id">Id of the Rent</param>
+        /// <param name="rent">New Rent data</param>
+        /// <returns>a Rent</returns>
+        /// <remarks>
+        /// Sample request
+        /// PUT: api/rents/1
+        /// </remarks>
+        /// <response code="204">If Rent was updated</response>
+        /// <response code="400">If the ids don't match</response>
+        /// <response code="404">If Rent was not found in database</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRent(int id, Rent rent)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutRent(int id, RentDTO rent)
         {
+            var newRent = _mapper.Map<Rent>(rent);
             if (id != rent.RentId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(rent).State = EntityState.Modified;
+            _context.Entry(newRent).State = EntityState.Modified;
 
             try
             {
@@ -73,19 +115,42 @@ namespace GameRental.Controllers
             return NoContent();
         }
 
-        // POST: api/Rents
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Creates a Rent
+        /// </summary>
+        /// <param name="rent">The Rent data</param>
+        /// <returns>a Rent</returns>
+        /// <remarks>
+        /// Sample request
+        /// POST: api/rents
+        /// </remarks>
+        /// <response code="201">If the Rent was created</response>
         [HttpPost]
-        public async Task<ActionResult<Rent>> PostRent(Rent rent)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<RentDTO>> PostRent(RentDTO rent)
         {
-            _context.Rents.Add(rent);
+            var newRent = _mapper.Map<Rent>(rent);
+            _context.Rents.Add(newRent);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetRent", new { id = rent.RentId }, rent);
         }
 
-        // DELETE: api/Rents/5
+        /// <summary>
+        /// Deletes a Rent by its id
+        /// </summary>
+        /// <param name="id">Id of the Rent</param>
+        /// <returns>a Rent</returns>
+        /// <remarks>
+        /// Sample request
+        /// DELETE: api/rents/1
+        /// </remarks>
+        /// <response code="204">If Rent was deleted</response>
+        /// <response code="404">If Rent was not found</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRent(int id)
         {
             var rent = await _context.Rents.FindAsync(id);
