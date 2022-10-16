@@ -8,7 +8,7 @@ namespace GameRental.Profiles
     {
         public ClientProfile()
         {
-            CreateMap<Client, ClientDTO>();
+            CreateMap<Client, ClientDTO>().ReverseMap();
         }
     }
 }

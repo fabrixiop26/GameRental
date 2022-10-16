@@ -8,7 +8,7 @@ namespace GameRental.Profiles
     {
         public CharacterProfile()
         {
-            CreateMap<Character, CharacterDTO>();
+            CreateMap<Character, CharacterDTO>().ReverseMap();
         }
     }
 }

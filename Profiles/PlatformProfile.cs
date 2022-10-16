@@ -8,7 +8,7 @@ namespace GameRental.Profiles
     {
         public PlatformProfile()
         {
-            CreateMap<Platform, PlatformDTO>();
+            CreateMap<Platform, PlatformDTO>().ReverseMap();
         }
     }
 }

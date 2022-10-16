@@ -94,11 +94,7 @@ namespace GameRental.Controllers
                 return BadRequest();
             }
 
-            var newCharacter = new Character
-            {
-                CharacterId = character.CharacterId,
-                Name = character.Name,
-            };
+            var newCharacter = _mapper.Map<Character>(character);
 
             _context.Entry(newCharacter).State = EntityState.Modified;
 
@@ -136,11 +132,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<ActionResult<CharacterDTO>> PostCharacter(CharacterDTO character)
         {
-            var newCharacter = new Character
-            {
-                CharacterId = character.CharacterId,
-                Name = character.Name,
-            };
+            var newCharacter = _mapper.Map<Character>(character);
             _context.Characters.Add(newCharacter);
             await _context.SaveChangesAsync();
 
