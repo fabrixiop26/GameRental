@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using GameRental.DBContext;
 using GameRental.Models;
 using Serilog;
+using AutoMapper;
+using GameRental.DTOModels;
 
 namespace GameRental.Controllers
 {
@@ -17,34 +19,35 @@ namespace GameRental.Controllers
     {
         private readonly AppDbContext _context;
         private readonly ILogger<GamesController> _logger;
+        private readonly IMapper _mapper;
 
-        public GamesController(AppDbContext context, ILogger<GamesController> logger)
+        public GamesController(AppDbContext context, ILogger<GamesController> logger, IMapper mapper)
         {
+            _mapper = mapper;
             _logger = logger;
             _context = context;
         }
 
         // GET: api/Games
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Game>>> GetGames()
+        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGames()
         {
-            this._logger.LogInformation("Log Information from GetGames() Method");
-            return await _context.Games.ToListAsync();
+           var games = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).ToListAsync();
+           return _mapper.Map<List<GameDTO>>(games);
         }
 
         // GET: api/Games/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetGame(int id)
+        public async Task<ActionResult<GameDTO>> GetGame(int id)
         {
 
-            var game = await _context.Games.FirstAsync(g => g.GameId == id);
+            var game = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).FirstAsync(g => g.GameId == id);
 
             if (game == null)
             {
                 return NotFound();
             }
-
-            return game;
+            return _mapper.Map<GameDTO>(game);
         }
 
         // PUT: api/Games/5
