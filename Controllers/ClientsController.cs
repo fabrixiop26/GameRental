@@ -7,30 +7,58 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GameRental.DBContext;
 using GameRental.Models;
+using AutoMapper;
+using GameRental.DTOModels;
 
 namespace GameRental.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class ClientsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ClientsController(AppDbContext context)
+        public ClientsController(AppDbContext context, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
         }
 
-        // GET: api/Clients
+ 
+        /// <summary>
+        /// Returns the list of clients
+        /// </summary>
+        /// <returns>a list of clients</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/clients
+        /// </remarks>
+        /// <response code="200">Success</response>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients()
         {
-            return await _context.Clients.ToListAsync();
+            var clients = await _context.Clients.ToListAsync();
+            return Ok(_mapper.Map<List<ClientDTO>>(clients));
         }
 
-        // GET: api/Clients/5
+        /// <summary>
+        /// Return a Client by its id
+        /// </summary>
+        /// <param name="id">Id of the Client</param>
+        /// <returns>a Client</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/clients/5
+        /// </remarks>
+        /// <response code="200">Returns the Client</response>
+        /// <response code="404">If the Client was not found</response>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Client>> GetClient(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ClientDTO>> GetClient(int id)
         {
             var client = await _context.Clients.FindAsync(id);
 
@@ -39,20 +67,36 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return client;
+            return Ok(_mapper.Map<ClientDTO>(client));
         }
 
-        // PUT: api/Clients/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates a Client by its id
+        /// </summary>
+        /// <param name="id">Id of the Client</param>
+        /// <param name="client">New Client data</param>
+        /// <returns>a Client</returns>
+        /// <remarks>
+        /// Sample request
+        /// PUT: api/clients/1
+        /// </remarks>
+        /// <response code="204">If Client was updated</response>
+        /// <response code="400">If the ids don't match</response>
+        /// <response code="404">If Client was not found in database</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutClient(int id, Client client)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutClient(int id, ClientDTO client)
         {
-            if (id != client.ClientId)
+            var newClient = _mapper.Map<Client>(client);
+            if (id != newClient.ClientId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(client).State = EntityState.Modified;
+            _context.Entry(newClient).State = EntityState.Modified;
 
             try
             {
@@ -73,19 +117,42 @@ namespace GameRental.Controllers
             return NoContent();
         }
 
-        // POST: api/Clients
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Creates a Client
+        /// </summary>
+        /// <param name="client">The Client data</param>
+        /// <returns>a Client</returns>
+        /// <remarks>
+        /// Sample request
+        /// POST: api/clients
+        /// </remarks>
+        /// <response code="201">If the Client was created</response>
         [HttpPost]
-        public async Task<ActionResult<Client>> PostClient(Client client)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<ClientDTO>> PostClient(ClientDTO client)
         {
-            _context.Clients.Add(client);
+            var newClient = _mapper.Map<Client>(client);
+            _context.Clients.Add(newClient);
             await _context.SaveChangesAsync();
-
+            client.ClientId = newClient.ClientId;
             return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
         }
 
-        // DELETE: api/Clients/5
+        /// <summary>
+        /// Deletes a Client by its id
+        /// </summary>
+        /// <param name="id">Id of the Client</param>
+        /// <returns>a Client</returns>
+        /// <remarks>
+        /// Sample request
+        /// DELETE: api/clients/1
+        /// </remarks>
+        /// <response code="204">If Client was deleted</response>
+        /// <response code="404">If Client was not found</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteClient(int id)
         {
             var client = await _context.Clients.FindAsync(id);

@@ -8,56 +8,95 @@ using Microsoft.EntityFrameworkCore;
 using GameRental.DBContext;
 using GameRental.Models;
 using Serilog;
+using AutoMapper;
+using GameRental.DTOModels;
 
 namespace GameRental.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class GamesController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly ILogger<GamesController> _logger;
+        private readonly IMapper _mapper;
 
-        public GamesController(AppDbContext context, ILogger<GamesController> logger)
+        public GamesController(AppDbContext context,IMapper mapper)
         {
-            _logger = logger;
+            _mapper = mapper;
             _context = context;
         }
 
-        // GET: api/Games
+        /// <summary>
+        /// Returns the list of Games
+        /// </summary>
+        /// <returns>a list of Games</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/games
+        /// </remarks>
+        /// <response code="200">Success</response>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Game>>> GetGames()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGames()
         {
-            this._logger.LogInformation("Log Information from GetGames() Method");
-            return await _context.Games.ToListAsync();
+           var games = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).ToListAsync();
+           return Ok(_mapper.Map<List<GameDTO>>(games));
         }
 
-        // GET: api/Games/5
+        /// <summary>
+        /// Return a Game by its id
+        /// </summary>
+        /// <param name="id">Id of the Game</param>
+        /// <returns>a Game</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/games/5
+        /// </remarks>
+        /// <response code="200">Returns the Game</response>
+        /// <response code="404">If the Game was not found</response>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetGame(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GameDTO>> GetGame(int id)
         {
 
-            var game = await _context.Games.FirstAsync(g => g.GameId == id);
+            var game = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).FirstAsync(g => g.GameId == id);
 
             if (game == null)
             {
                 return NotFound();
             }
-
-            return game;
+            return Ok(_mapper.Map<GameDTO>(game));
         }
 
-        // PUT: api/Games/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates a Game by its id
+        /// </summary>
+        /// <param name="id">Id of the Game</param>
+        /// <param name="game">New Game data</param>
+        /// <returns>a Game</returns>
+        /// <remarks>
+        /// Sample request
+        /// PUT: api/games/1
+        /// </remarks>
+        /// <response code="204">If Game was updated</response>
+        /// <response code="400">If the ids don't match</response>
+        /// <response code="404">If Game was not found in database</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGame(int id, Game game)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutGame(int id, GameDTO game)
         {
-            if (id != game.GameId)
+            var newGame = _mapper.Map<Game>(game);
+            if (id != newGame.GameId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(game).State = EntityState.Modified;
+            _context.Entry(newGame).State = EntityState.Modified;
 
             try
             {
@@ -78,19 +117,42 @@ namespace GameRental.Controllers
             return NoContent();
         }
 
-        // POST: api/Games
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Creates a Game
+        /// </summary>
+        /// <param name="game">The Game data</param>
+        /// <returns>a Game</returns>
+        /// <remarks>
+        /// Sample request
+        /// POST: api/games
+        /// </remarks>
+        /// <response code="201">If the Game was created</response>
         [HttpPost]
-        public async Task<ActionResult<Game>> PostGame(Game game)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<GameDTO>> PostGame(GameDTO game)
         {
-            _context.Games.Add(game);
+            var newGame = _mapper.Map<Game>(game);
+            _context.Games.Add(newGame);
             await _context.SaveChangesAsync();
-
+            game.GameId = newGame.GameId;
             return CreatedAtAction("GetGame", new { id = game.GameId }, game);
         }
 
-        // DELETE: api/Games/5
+        /// <summary>
+        /// Deletes a Game by its id
+        /// </summary>
+        /// <param name="id">Id of the Game</param>
+        /// <returns>a Game</returns>
+        /// <remarks>
+        /// Sample request
+        /// DELETE: api/games/1
+        /// </remarks>
+        /// <response code="204">If Game was deleted</response>
+        /// <response code="404">If Game was not found</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteGame(int id)
         {
             var game = await _context.Games.FindAsync(id);

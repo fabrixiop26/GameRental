@@ -1,9 +1,13 @@
+using AutoMapper;
 using GameRental.DBContext;
+using GameRental.DTOModels;
+using GameRental.Models;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -16,6 +20,8 @@ builder.Logging.AddSerilog(logger);
 // Add services to the container.
 // use lowercase in paths to use /products instead of /Products
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+// Use DI for automapper
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers().AddJsonOptions(j => j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => {
@@ -32,13 +38,13 @@ builder.Services.AddSwaggerGen(options => {
         },
     });
     options.SupportNonNullableReferenceTypes();
+    options.CustomSchemaIds(x => x.GetCustomAttributes(false).OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ?? x.Name);
     // using System.Reflection;
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 //builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnectionString")));
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

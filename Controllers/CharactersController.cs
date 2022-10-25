@@ -7,30 +7,57 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GameRental.DBContext;
 using GameRental.Models;
+using AutoMapper;
+using GameRental.DTOModels;
 
 namespace GameRental.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json")]
     public class CharactersController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CharactersController(AppDbContext context)
+        public CharactersController(AppDbContext context, IMapper mapper)
         {
+            _mapper = mapper;
             _context = context;
         }
 
-        // GET: api/Characters
+        /// <summary>
+        /// Return the list of characters
+        /// </summary>
+        /// <returns>a list of game's characters</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/characters/
+        /// </remarks>
+        /// <response code="200">Returns the list of items</response>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Character>>> GetCharacters()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<CharacterDTO>>> GetCharacters()
         {
-            return await _context.Characters.ToListAsync();
+            var characters = await _context.Characters.ToListAsync();
+            return Ok(_mapper.Map<List<CharacterDTO>>(characters));
         }
 
-        // GET: api/Characters/5
+        /// <summary>
+        /// Return a character by its id
+        /// </summary>
+        /// <param name="id">Id of the Character</param>
+        /// <returns>a Character</returns>
+        /// <remarks>
+        /// Sample request
+        /// GET: api/characters/1
+        /// </remarks>
+        /// <response code="200">Returns the Character</response>
+        /// <response code="404">If the Character was not found</response>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Character>> GetCharacter(int id)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CharacterDTO>> GetCharacter(int id)
         {
             var character = await _context.Characters.FindAsync(id);
 
@@ -39,20 +66,37 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            return character;
+            return Ok(_mapper.Map<CharacterDTO>(character));
         }
 
-        // PUT: api/Characters/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates a character by its id
+        /// </summary>
+        /// <param name="id">Id of the Character</param>
+        /// <param name="character">New Character data</param>
+        /// <returns>a Character</returns>
+        /// <remarks>
+        /// Sample request
+        /// PUT: api/characters/1
+        /// </remarks>
+        /// <response code="204">If Character was updated</response>
+        /// <response code="400">If the ids don't match</response>
+        /// <response code="404">If Character was not found in database</response>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCharacter(int id, Character character)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> PutCharacter(int id, CharacterDTO character)
         {
             if (id != character.CharacterId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(character).State = EntityState.Modified;
+            var newCharacter = _mapper.Map<Character>(character);
+
+            _context.Entry(newCharacter).State = EntityState.Modified;
 
             try
             {
@@ -73,19 +117,42 @@ namespace GameRental.Controllers
             return NoContent();
         }
 
-        // POST: api/Characters
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Creates a character
+        /// </summary>
+        /// <param name="character">The Character data</param>
+        /// <returns>a Character</returns>
+        /// <remarks>
+        /// Sample request
+        /// POST: api/characters
+        /// </remarks>
+        /// <response code="201">If the Character was created</response>
         [HttpPost]
-        public async Task<ActionResult<Character>> PostCharacter(Character character)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<CharacterDTO>> PostCharacter(CharacterDTO character)
         {
-            _context.Characters.Add(character);
+            var newCharacter = _mapper.Map<Character>(character);
+            _context.Characters.Add(newCharacter);
             await _context.SaveChangesAsync();
-
+            character.CharacterId = newCharacter.CharacterId;
             return CreatedAtAction("GetCharacter", new { id = character.CharacterId }, character);
         }
 
-        // DELETE: api/Characters/5
+        /// <summary>
+        /// Deletes a character by its id
+        /// </summary>
+        /// <param name="id">Id of the Character</param>
+        /// <returns>a Character</returns>
+        /// <remarks>
+        /// Sample request
+        /// DELETE: api/characters/1
+        /// </remarks>
+        /// <response code="204">If Character was deleted</response>
+        /// <response code="404">If Character was not found</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
             var character = await _context.Characters.FindAsync(id);
