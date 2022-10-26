@@ -9,6 +9,7 @@ using GameRental.DBContext;
 using GameRental.Models;
 using AutoMapper;
 using GameRental.DTOModels;
+using AutoFilterer.Extensions;
 
 namespace GameRental.Controllers
 {
@@ -37,9 +38,10 @@ namespace GameRental.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<PlatformDTO>>> GetPlatforms()
+        public async Task<ActionResult<IEnumerable<PlatformDTO>>> GetPlatforms([FromQuery] PlatformDTOFilter filter)
         {
-            var platforms = await _context.Platforms.ToListAsync();
+            Console.WriteLine("Page {0} PerPage {1}", filter.Page, filter.PerPage);
+            var platforms = await _context.Platforms.ApplyFilter(filter).ToListAsync();
             return Ok(_mapper.Map<List<PlatformDTO>>(platforms));
         }
 

@@ -1,4 +1,6 @@
-﻿using GameRental.DBContext;
+﻿using AutoFilterer.Extensions;
+using GameRental.DBContext;
+using GameRental.DTOModels;
 using GameRental.Helpers;
 using GameRental.Models;
 
@@ -14,9 +16,9 @@ namespace GameRental.Repository
         {
 
         }
-        public Task<PagedList<Character>> GetAllCharacters(PagingParameters _params)
+        public Task<PagedList<Character>> GetAllCharacters(CharacterDTOFilter _params)
         {
-            return PagedList<Character>.ToPagedList(GetAll().OrderBy(on => on.CharacterId), _params.PageNumber, _params.PageSize);
+            return PagedList<Character>.ToPagedList(GetAll().ApplyFilterWithoutPagination(_params), _params.Page, _params.PerPage);
         }
     }
 }

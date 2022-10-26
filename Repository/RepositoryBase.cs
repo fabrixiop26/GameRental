@@ -14,8 +14,6 @@ namespace GameRental.Repository
         }
         public IQueryable<T> GetAll()
         {
-            //return DbContext.Set<T>().Skip((_params.PageNumber - 1) * _params.PageSize).Take(_params.PageSize);
-            //return PagedList<T>.ToPagedList(DbContext.Set<T>(), _params.PageNumber, _params.PageSize);
             return DbContext.Set<T>();
         }
 

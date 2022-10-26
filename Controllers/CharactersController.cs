@@ -39,13 +39,13 @@ namespace GameRental.Controllers
         /// <response code="200">Returns the list of items</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<CharacterDTO>>> GetCharacters([FromQuery] PagingParameters _params)
+        public async Task<ActionResult<IEnumerable<CharacterDTO>>> GetCharacters([FromQuery] CharacterDTOFilter _params)
         {
 
             var characters = await _repository.Characters.GetAllCharacters(_params);
             var mappedData = _mapper.Map<List<CharacterDTO>>(characters);
             return Ok(
-                new PagedResponse<List<CharacterDTO>>(mappedData, characters.HasPreviousPage, characters.HasNextPage)
+                new PagedResponse<List<CharacterDTO>>(mappedData, characters.TotalCount)
             );
         }
 

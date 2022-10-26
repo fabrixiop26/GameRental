@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GameRental.DTOModels
 {
+
+    [GenerateAutoFilter]
     [DisplayName("PlatformViewModel")]
     public class PlatformDTO
     {
