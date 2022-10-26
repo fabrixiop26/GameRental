@@ -2,6 +2,7 @@ using AutoMapper;
 using GameRental.DBContext;
 using GameRental.DTOModels;
 using GameRental.Models;
+using GameRental.Repository;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -43,8 +44,9 @@ builder.Services.AddSwaggerGen(options => {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
-//builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnectionString")));
+// could use interface for better practive instead of just class implementation
+builder.Services.AddScoped<RepositoryService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
