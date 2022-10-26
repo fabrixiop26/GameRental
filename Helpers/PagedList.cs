@@ -22,7 +22,7 @@ namespace GameRental.Helpers
         }
         public static async Task<PagedList<T>> ToPagedList(IQueryable<T> source, int pageNumber, int pageSize)
         {
-            //Count all the records (for the sake of simplicity this is "simple")
+            //Count all the records (for the sake of simplicity this is "easier than cursor based")
             var count = source.Count();
             var items = await source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
             return new PagedList<T>(items,count, pageNumber, pageSize);

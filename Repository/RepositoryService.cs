@@ -5,22 +5,21 @@ namespace GameRental.Repository
     public class RepositoryService
     {
         private AppDbContext _dbContext;
-        private ICharacterRepository _character;
 
-        public ICharacterRepository Characters
-        {
-            get
-            {
-                if (_character == null)
-                {
-                    _character = new CharacterRepository(_dbContext);   
-                }
-                return _character;
-            }
-        }
+        public ICharacterRepository Characters { get; private set; }
+        public IPlatformRepository Platforms { get; private set; }
+        public IRentRepository Rents { get; private set; }
+        public IClientRepository Clients { get; private set; }
+        public IGameRepository Games { get; private set; }
         public RepositoryService(AppDbContext dbContext)
         {
+            // Instance All Used Repositories
             _dbContext = dbContext;
+            Characters = new CharacterRepository(_dbContext);
+            Platforms = new PlatformRepository(_dbContext);
+            Rents = new RentRepository(_dbContext);
+            Clients = new ClientRepository(_dbContext);
+            Games = new GameRepository(_dbContext);
         }
 
         public async Task SaveChangesAsync()

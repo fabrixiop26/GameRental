@@ -10,6 +10,8 @@ using GameRental.Models;
 using AutoMapper;
 using GameRental.DTOModels;
 using AutoFilterer.Extensions;
+using GameRental.Repository;
+using GameRental.Helpers;
 
 namespace GameRental.Controllers
 {
@@ -18,13 +20,13 @@ namespace GameRental.Controllers
     [Produces("application/json")]
     public class PlatformsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly RepositoryService _repository;
         private readonly IMapper _mapper;
 
-        public PlatformsController(AppDbContext context,IMapper mapper)
+        public PlatformsController(RepositoryService repository,IMapper mapper)
         {
             _mapper = mapper;
-            _context = context;
+            _repository=repository;
         }
 
         /// <summary>
@@ -38,11 +40,13 @@ namespace GameRental.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<PlatformDTO>>> GetPlatforms([FromQuery] PlatformDTOFilter filter)
+        public async Task<ActionResult<IEnumerable<PlatformDTO>>> GetPlatforms([FromQuery] PlatformDTOFilter _params)
         {
-            Console.WriteLine("Page {0} PerPage {1}", filter.Page, filter.PerPage);
-            var platforms = await _context.Platforms.ApplyFilter(filter).ToListAsync();
-            return Ok(_mapper.Map<List<PlatformDTO>>(platforms));
+            var platforms = await _repository.Platforms.GetAllPlataforms(_params);
+            var mappedData = _mapper.Map<List<PlatformDTO>>(platforms);
+            return Ok(
+                new PagedResponse<List<PlatformDTO>>(mappedData, platforms.TotalCount)
+            );
         }
 
         /// <summary>
@@ -61,7 +65,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PlatformDTO>> GetPlatform(int id)
         {
-            var platform = await _context.Platforms.FindAsync(id);
+            var platform = await _repository.Platforms.FindByCondition(p => p.PlatformId == id).FirstOrDefaultAsync();
 
             if (platform == null)
             {
@@ -97,11 +101,11 @@ namespace GameRental.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(newPlatform).State = EntityState.Modified;
+            _repository.Platforms.Update(newPlatform);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -134,8 +138,8 @@ namespace GameRental.Controllers
         public async Task<ActionResult<PlatformDTO>> PostPlatform(PlatformDTO platform)
         {
             var newPlatform = _mapper.Map<Platform>(platform);
-            _context.Platforms.Add(newPlatform);
-            await _context.SaveChangesAsync();
+            _repository.Platforms.Create(newPlatform);
+            await _repository.SaveChangesAsync();
             platform.PlatformId = newPlatform.PlatformId;
             return CreatedAtAction("GetPlatform", new { id = platform.PlatformId }, platform);
         }
@@ -156,21 +160,21 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePlatform(int id)
         {
-            var platform = await _context.Platforms.FindAsync(id);
+            var platform = await _repository.Platforms.FindByCondition(p => p.PlatformId == id).FirstOrDefaultAsync();
             if (platform == null)
             {
                 return NotFound();
             }
 
-            _context.Platforms.Remove(platform);
-            await _context.SaveChangesAsync();
+            _repository.Platforms.Delete(platform);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool PlatformExists(int id)
         {
-            return _context.Platforms.Any(e => e.PlatformId == id);
+            return _repository.Platforms.FindByCondition(e => e.PlatformId == id).FirstOrDefault() != null;
         }
     }
 }

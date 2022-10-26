@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GameRental.DTOModels
 {
+    [GenerateAutoFilter]
     [DisplayName("RentViewModel")]
     public class RentDTO
     {

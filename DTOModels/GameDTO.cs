@@ -6,6 +6,7 @@ using System.ComponentModel;
 
 namespace GameRental.DTOModels
 {
+    [GenerateAutoFilter]
     [DisplayName("GameViewModel")]
     public class GameDTO
     {

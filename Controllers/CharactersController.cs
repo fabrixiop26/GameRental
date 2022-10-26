@@ -174,7 +174,7 @@ namespace GameRental.Controllers
 
         private bool CharacterExists(int id)
         {
-            return _repository.Characters.FindByCondition(e => e.CharacterId == id).First() != null;
+            return _repository.Characters.FindByCondition(e => e.CharacterId == id).FirstOrDefault() != null;
         }
     }
 }
