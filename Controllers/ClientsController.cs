@@ -28,7 +28,7 @@ namespace GameRental.Controllers
             _repository = repository;
         }
 
- 
+
         /// <summary>
         /// Returns the list of clients
         /// </summary>
@@ -72,6 +72,47 @@ namespace GameRental.Controllers
 
             return Ok(_mapper.Map<ClientDTO>(client));
         }
+        /// <summary>
+        /// Get the rents from a client
+        /// </summary>
+        /// <param name="id">Id of the client</param>
+        /// <returns>A list of rents</returns>
+        /// <response code="200">Returns the list of game rented by this client</response>
+        [HttpGet("{id}/rentals")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents(int id)
+        {
+            var rents = await _repository.Rents.FindByCondition(r => r.ClientId == id).ToListAsync();
+            return Ok(_mapper.Map<List<RentDTO>>(rents));
+        }
+        /// <summary>
+        /// Get the most frecuent client
+        /// </summary>
+        /// <returns>The client with the most rents</returns>
+        /// <response code="200">Returns the list of game rented by this client</response>
+        /// <response code="404">If there are no rents</response>
+        [HttpGet("MostFrecuent")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ClientDTO>> GetMostFrecuentClient()
+        {
+            // count the amounts of clientId 
+            var result = await _repository.Rents.GetAll().GroupBy(r => r.ClientId, (x, y) => new
+            {
+                Quantity = y.Count(),
+                ClientId = x,
+            }).OrderByDescending(a => a.Quantity).FirstOrDefaultAsync();
+
+            if(result == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _repository.Clients.FindByCondition(c => c.ClientId == result.ClientId).FirstOrDefaultAsync();
+
+            return Ok(_mapper.Map<ClientDTO>(client));
+        }
+            
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /// <summary>

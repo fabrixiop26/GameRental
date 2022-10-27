@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using AutoFilterer.Attributes;
+using AutoFilterer.Enums;
 
 namespace GameRental.DTOModels
 {
@@ -13,6 +15,7 @@ namespace GameRental.DTOModels
         public int PlatformId { get; set; }
         [StringLength(50)]
         [Unicode(false)]
+        [StringFilterOptions(StringFilterOption.Contains)]
         public string Name { get; set; } = null!;
     }
 }

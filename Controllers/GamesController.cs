@@ -12,6 +12,7 @@ using AutoMapper;
 using GameRental.DTOModels;
 using GameRental.Repository;
 using GameRental.Helpers;
+using NuGet.Protocol.Core.Types;
 
 namespace GameRental.Controllers
 {
@@ -23,7 +24,7 @@ namespace GameRental.Controllers
         private readonly RepositoryService _repository;
         private readonly IMapper _mapper;
 
-        public GamesController(RepositoryService repository,IMapper mapper)
+        public GamesController(RepositoryService repository, IMapper mapper)
         {
             _mapper = mapper;
             _repository = repository;
@@ -44,7 +45,16 @@ namespace GameRental.Controllers
         {
             var games = await _repository.Games.GetAllGames(_params);
             var mappedResults = _mapper.Map<List<GameDTO>>(games);
-           return Ok(new PagedResponse<List<GameDTO>>(mappedResults, games.TotalCount));
+            return Ok(new PagedResponse<List<GameDTO>>(mappedResults, games.TotalCount));
+        }
+
+        [HttpGet("ByCharacters")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGamesByCharacters([FromQuery] List<int> platforms)
+        {
+            var games = await _repository.Games.FindByCondition(g => g.Platforms.Any(p => platforms.Contains(p.PlatformId))).Include(g => g.Platforms).ToListAsync();
+            var mappedResults = _mapper.Map<List<GameDTO>>(games);
+            return Ok(mappedResults);
         }
 
         /// <summary>
@@ -70,6 +80,33 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
+            return Ok(_mapper.Map<GameDTO>(game));
+        }
+        /// <summary>
+        /// Return the most rented game
+        /// </summary>
+        /// <returns>The most rented game</returns>
+        /// <response code="200">Returns the most rented Game</response>
+        /// <response code="404">If there are not rents</response>
+        [HttpGet("MostRented")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GameDTO>> GetMostRentedGame()
+        {
+            // count the amounts of clientId 
+            var result = await _repository.Rents.GetAll().GroupBy(r => r.GameId, (x, y) => new
+            {
+                Quantity = y.Count(),
+                GameId = x,
+            }).OrderByDescending(a => a.Quantity).FirstOrDefaultAsync();
+            if (result == null)
+            {
+                return NotFound();
+            }
+            var game = await _repository.Games.FindByCondition(g => g.GameId == result.GameId)
+                .Include(g => g.Platforms)
+                .Include(g => g.Characters).FirstOrDefaultAsync();
+
             return Ok(_mapper.Map<GameDTO>(game));
         }
 
@@ -163,7 +200,7 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-            
+
             _repository.Games.Delete(game);
             await _repository.SaveChangesAsync();
 
