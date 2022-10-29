@@ -1,36 +1,15 @@
-import React, { useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Admin, Resource } from "react-admin";
+import GameResourceProps from "resources/game";
+import { dataProvider } from "services/dataProvider";
 
 function App() {
-
-    useEffect(() => {
-        const getData = async () => {
-            const response = await fetch("/api/characters");
-            const data = await response.json();
-            console.log(data);
-        }
-        getData();
-    }, []);
-
-    return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
-    );
+  return (
+    <div className="App">
+      <Admin dataProvider={dataProvider} title="GameRental - Dashboard">
+        <Resource {...GameResourceProps} />
+      </Admin>
+    </div>
+  );
 }
 
 export default App;
