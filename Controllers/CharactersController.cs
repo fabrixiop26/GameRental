@@ -9,6 +9,9 @@ using GameRental.DBContext;
 using GameRental.Models;
 using AutoMapper;
 using GameRental.DTOModels;
+using GameRental.Repository;
+using GameRental.Helpers;
+using System.Collections;
 
 namespace GameRental.Controllers
 {
@@ -17,13 +20,12 @@ namespace GameRental.Controllers
     [Produces("application/json")]
     public class CharactersController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-
-        public CharactersController(AppDbContext context, IMapper mapper)
+        private readonly RepositoryService _repository;
+        public CharactersController(RepositoryService repository, IMapper mapper)
         {
             _mapper = mapper;
-            _context = context;
+            _repository = repository;
         }
 
         /// <summary>
@@ -37,10 +39,14 @@ namespace GameRental.Controllers
         /// <response code="200">Returns the list of items</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<CharacterDTO>>> GetCharacters()
+        public async Task<ActionResult<IEnumerable<CharacterDTO>>> GetCharacters([FromQuery] CharacterDTOFilter _params)
         {
-            var characters = await _context.Characters.ToListAsync();
-            return Ok(_mapper.Map<List<CharacterDTO>>(characters));
+
+            var characters = await _repository.Characters.GetAllCharacters(_params);
+            var mappedData = _mapper.Map<List<CharacterDTO>>(characters);
+            return Ok(
+                new PagedResponse<List<CharacterDTO>>(mappedData, characters.TotalCount)
+            );
         }
 
         /// <summary>
@@ -59,13 +65,12 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CharacterDTO>> GetCharacter(int id)
         {
-            var character = await _context.Characters.FindAsync(id);
+            var character = await _repository.Characters.FindByCondition(c => c.CharacterId == id).FirstOrDefaultAsync();
 
             if (character == null)
             {
                 return NotFound();
             }
-
             return Ok(_mapper.Map<CharacterDTO>(character));
         }
 
@@ -96,11 +101,11 @@ namespace GameRental.Controllers
 
             var newCharacter = _mapper.Map<Character>(character);
 
-            _context.Entry(newCharacter).State = EntityState.Modified;
+            _repository.Characters.Update(newCharacter);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -130,11 +135,11 @@ namespace GameRental.Controllers
         /// <response code="201">If the Character was created</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<CharacterDTO>> PostCharacter(CharacterDTO character)
+        public async Task<ActionResult<CharacterDTO>> PostCharacter([FromBody] CharacterDTO character)
         {
             var newCharacter = _mapper.Map<Character>(character);
-            _context.Characters.Add(newCharacter);
-            await _context.SaveChangesAsync();
+            _repository.Characters.Create(newCharacter);
+            await _repository.SaveChangesAsync();
             character.CharacterId = newCharacter.CharacterId;
             return CreatedAtAction("GetCharacter", new { id = character.CharacterId }, character);
         }
@@ -155,21 +160,21 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
-            var character = await _context.Characters.FindAsync(id);
+            var character = await _repository.Characters.FindByCondition(c => c.CharacterId == id).FirstOrDefaultAsync();
             if (character == null)
             {
                 return NotFound();
             }
 
-            _context.Characters.Remove(character);
-            await _context.SaveChangesAsync();
+            _repository.Characters.Delete(character);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool CharacterExists(int id)
         {
-            return _context.Characters.Any(e => e.CharacterId == id);
+            return _repository.Characters.FindByCondition(e => e.CharacterId == id).FirstOrDefault() != null;
         }
     }
 }

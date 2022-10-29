@@ -10,6 +10,9 @@ using GameRental.Models;
 using Serilog;
 using AutoMapper;
 using GameRental.DTOModels;
+using GameRental.Repository;
+using GameRental.Helpers;
+using NuGet.Protocol.Core.Types;
 
 namespace GameRental.Controllers
 {
@@ -18,13 +21,13 @@ namespace GameRental.Controllers
     [Produces("application/json")]
     public class GamesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly RepositoryService _repository;
         private readonly IMapper _mapper;
 
-        public GamesController(AppDbContext context,IMapper mapper)
+        public GamesController(RepositoryService repository, IMapper mapper)
         {
             _mapper = mapper;
-            _context = context;
+            _repository = repository;
         }
 
         /// <summary>
@@ -38,10 +41,20 @@ namespace GameRental.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGames()
+        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGames([FromQuery] GameDTOFilter _params)
         {
-           var games = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).ToListAsync();
-           return Ok(_mapper.Map<List<GameDTO>>(games));
+            var games = await _repository.Games.GetAllGames(_params);
+            var mappedResults = _mapper.Map<List<GameDTO>>(games);
+            return Ok(new PagedResponse<List<GameDTO>>(mappedResults, games.TotalCount));
+        }
+
+        [HttpGet("ByCharacters")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGamesByCharacters([FromQuery] List<int> platforms)
+        {
+            var games = await _repository.Games.FindByCondition(g => g.Platforms.Any(p => platforms.Contains(p.PlatformId))).Include(g => g.Platforms).ToListAsync();
+            var mappedResults = _mapper.Map<List<GameDTO>>(games);
+            return Ok(mappedResults);
         }
 
         /// <summary>
@@ -61,13 +74,40 @@ namespace GameRental.Controllers
         public async Task<ActionResult<GameDTO>> GetGame(int id)
         {
 
-            var game = await _context.Games.Include(g => g.Platforms).Include(g => g.Characters).FirstAsync(g => g.GameId == id);
+            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).Include(g => g.Characters).FirstOrDefaultAsync();
 
             if (game == null)
             {
                 return NotFound();
             }
-            return Ok(_mapper.Map<GameDTO>(game));
+            return Ok(new OkResponse<GameDTO>(_mapper.Map<GameDTO>(game)));
+        }
+        /// <summary>
+        /// Return the most rented game
+        /// </summary>
+        /// <returns>The most rented game</returns>
+        /// <response code="200">Returns the most rented Game</response>
+        /// <response code="404">If there are not rents</response>
+        [HttpGet("MostRented")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GameDTO>> GetMostRentedGame()
+        {
+            // count the amounts of clientId 
+            var result = await _repository.Rents.GetAll().GroupBy(r => r.GameId, (x, y) => new
+            {
+                Quantity = y.Count(),
+                GameId = x,
+            }).OrderByDescending(a => a.Quantity).FirstOrDefaultAsync();
+            if (result == null)
+            {
+                return NotFound();
+            }
+            var game = await _repository.Games.FindByCondition(g => g.GameId == result.GameId)
+                .Include(g => g.Platforms)
+                .Include(g => g.Characters).FirstOrDefaultAsync();
+
+            return Ok(new OkResponse<GameDTO>(_mapper.Map<GameDTO>(game)));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -96,11 +136,11 @@ namespace GameRental.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(newGame).State = EntityState.Modified;
+            _repository.Games.Update(newGame);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -133,8 +173,8 @@ namespace GameRental.Controllers
         public async Task<ActionResult<GameDTO>> PostGame(GameDTO game)
         {
             var newGame = _mapper.Map<Game>(game);
-            _context.Games.Add(newGame);
-            await _context.SaveChangesAsync();
+            _repository.Games.Create(newGame);
+            await _repository.SaveChangesAsync();
             game.GameId = newGame.GameId;
             return CreatedAtAction("GetGame", new { id = game.GameId }, game);
         }
@@ -155,21 +195,21 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteGame(int id)
         {
-            var game = await _context.Games.FindAsync(id);
+            var game = await _repository.Games.FindByCondition(g => g.GameId == id).FirstOrDefaultAsync();
             if (game == null)
             {
                 return NotFound();
             }
 
-            _context.Games.Remove(game);
-            await _context.SaveChangesAsync();
+            _repository.Games.Delete(game);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool GameExists(int id)
         {
-            return _context.Games.Any(e => e.GameId == id);
+            return _repository.Games.FindByCondition(g => g.GameId == id).FirstOrDefault() != null;
         }
     }
 }

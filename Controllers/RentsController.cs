@@ -9,6 +9,8 @@ using GameRental.DBContext;
 using GameRental.Models;
 using AutoMapper;
 using GameRental.DTOModels;
+using GameRental.Repository;
+using GameRental.Helpers;
 
 namespace GameRental.Controllers
 {
@@ -17,12 +19,12 @@ namespace GameRental.Controllers
     [Produces("application/json")]
     public class RentsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly RepositoryService _repository;
         private readonly IMapper _mapper;
-        public RentsController(AppDbContext context, IMapper mapper)
+        public RentsController(RepositoryService repository, IMapper mapper)
         {
             _mapper = mapper;
-            _context = context;
+            _repository = repository;
         }
 
         /// <summary>
@@ -36,10 +38,11 @@ namespace GameRental.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents()
+        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents([FromQuery] RentDTOFilter _params)
         {
-            var rents = await _context.Rents.ToListAsync();
-            return Ok(_mapper.Map<List<RentDTO>>(rents));
+            var rents = await _repository.Rents.GetAllRents(_params);
+            var mappedResults = _mapper.Map<List<RentDTO>>(rents);
+            return Ok(new PagedResponse<List<RentDTO>>(mappedResults, rents.TotalCount));
         }
 
         /// <summary>
@@ -58,7 +61,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RentDTO>> GetRent(int id)
         {
-            var rent = await _context.Rents.FindAsync(id);
+            var rent = await _repository.Rents.FindByCondition(r => r.RentId == id).FirstOrDefaultAsync();
 
             if (rent == null)
             {
@@ -94,11 +97,11 @@ namespace GameRental.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(newRent).State = EntityState.Modified;
+            _repository.Rents.Update(newRent);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -131,8 +134,8 @@ namespace GameRental.Controllers
         public async Task<ActionResult<RentDTO>> PostRent(RentDTO rent)
         {
             var newRent = _mapper.Map<Rent>(rent);
-            _context.Rents.Add(newRent);
-            await _context.SaveChangesAsync();
+            _repository.Rents.Create(newRent);
+            await _repository.SaveChangesAsync();
             rent.RentId = newRent.RentId;
             return CreatedAtAction("GetRent", new { id = rent.RentId }, rent);
         }
@@ -153,21 +156,21 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRent(int id)
         {
-            var rent = await _context.Rents.FindAsync(id);
+            var rent = await _repository.Rents.FindByCondition(r => r.RentId == id).FirstOrDefaultAsync();
             if (rent == null)
             {
                 return NotFound();
             }
 
-            _context.Rents.Remove(rent);
-            await _context.SaveChangesAsync();
+            _repository.Rents.Delete(rent);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool RentExists(int id)
         {
-            return _context.Rents.Any(e => e.RentId == id);
+            return _repository.Rents.FindByCondition(r => r.RentId == id).FirstOrDefault() != null;
         }
     }
 }

@@ -9,6 +9,8 @@ using GameRental.DBContext;
 using GameRental.Models;
 using AutoMapper;
 using GameRental.DTOModels;
+using GameRental.Repository;
+using GameRental.Helpers;
 
 namespace GameRental.Controllers
 {
@@ -17,16 +19,16 @@ namespace GameRental.Controllers
     [Produces("application/json")]
     public class ClientsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly RepositoryService _repository;
         private readonly IMapper _mapper;
 
-        public ClientsController(AppDbContext context, IMapper mapper)
+        public ClientsController(RepositoryService repository, IMapper mapper)
         {
             _mapper = mapper;
-            _context = context;
+            _repository = repository;
         }
 
- 
+
         /// <summary>
         /// Returns the list of clients
         /// </summary>
@@ -38,10 +40,11 @@ namespace GameRental.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients()
+        public async Task<ActionResult<IEnumerable<ClientDTO>>> GetClients([FromQuery] ClientDTOFilter _params)
         {
-            var clients = await _context.Clients.ToListAsync();
-            return Ok(_mapper.Map<List<ClientDTO>>(clients));
+            var clients = await _repository.Clients.GetAllClients(_params);
+            var mappedData = _mapper.Map<List<ClientDTO>>(clients);
+            return Ok(new PagedResponse<List<ClientDTO>>(mappedData, clients.TotalCount));
         }
 
         /// <summary>
@@ -60,7 +63,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ClientDTO>> GetClient(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _repository.Clients.FindByCondition(c => c.ClientId == id).FirstOrDefaultAsync();
 
             if (client == null)
             {
@@ -69,6 +72,74 @@ namespace GameRental.Controllers
 
             return Ok(_mapper.Map<ClientDTO>(client));
         }
+        /// <summary>
+        /// Get the rents from a client
+        /// </summary>
+        /// <param name="id">Id of the client</param>
+        /// <returns>A list of rents</returns>
+        /// <response code="200">Returns the list of game rented by this client</response>
+        [HttpGet("{id}/rentals")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents(int id)
+        {
+            var rents = await _repository.Rents.FindByCondition(r => r.ClientId == id).ToListAsync();
+            return Ok(_mapper.Map<List<RentDTO>>(rents));
+        }
+        /// <summary>
+        /// Get the most frecuent client
+        /// </summary>
+        /// <returns>The client with the most rents</returns>
+        /// <response code="200">Returns the list of game rented by this client</response>
+        /// <response code="404">If there are no rents</response>
+        [HttpGet("MostFrecuent")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ClientDTO>> GetMostFrecuentClient()
+        {
+            // count the amounts of clientId 
+            var result = await _repository.Rents.GetAll().GroupBy(r => r.ClientId, (x, y) => new
+            {
+                Quantity = y.Count(),
+                ClientId = x,
+            }).OrderByDescending(a => a.Quantity).FirstOrDefaultAsync();
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            var client = await _repository.Clients.FindByCondition(c => c.ClientId == result.ClientId).FirstOrDefaultAsync();
+
+            return Ok(_mapper.Map<ClientDTO>(client));
+        }
+
+        [HttpGet("GetAgeRange")]
+        public async Task<ActionResult> GetAgeRanges()
+        {
+            // Age = EF.Functions.DateDiffYear()
+            // inneficient calculations are made client-side and not in sql
+            //var results = await _repository.Clients.GetAll().ToListAsync();
+
+            var groupedResults = await _repository.Clients.GetAll().Select(c => new { Age = DateTime.Now.Year - c.Dob.Year })
+                //.GroupBy(p => string.Concat((p.Age - 1) / 10 * 10 + 1,"-", (p.Age - 1) / 10 * 10 + 10))
+                //.GroupBy(p => $"{(p.Age - 1) / 10 * 10 + 1}-{(p.Age - 1) / 10 * 10 + 10}")
+                .GroupBy(p => ((p.Age - 1) / 10 * 10 + 1).ToString() + "-" + ((p.Age - 1) / 10 * 10 + 10).ToString())
+                .Select(g => new { Range = g.Key, Count = g.Count() }).ToListAsync();
+            return Ok(groupedResults);
+        }
+        [HttpGet("GetLeastSoldGame")]
+        public async Task<ActionResult<Game>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
+        {
+            var res = await _repository.Rents.GetLeastRented(minAge,maxAge);
+
+            if (res == null)
+            {
+                return NotFound();
+            }
+            var game = await _repository.Games.FindByCondition(g => g.GameId==res.GameId).FirstOrDefaultAsync();
+            return Ok(game);
+        }
+
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /// <summary>
@@ -96,11 +167,11 @@ namespace GameRental.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(newClient).State = EntityState.Modified;
+            _repository.Clients.Update(newClient);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -133,8 +204,8 @@ namespace GameRental.Controllers
         public async Task<ActionResult<ClientDTO>> PostClient(ClientDTO client)
         {
             var newClient = _mapper.Map<Client>(client);
-            _context.Clients.Add(newClient);
-            await _context.SaveChangesAsync();
+            _repository.Clients.Create(newClient);
+            await _repository.SaveChangesAsync();
             client.ClientId = newClient.ClientId;
             return CreatedAtAction("GetClient", new { id = client.ClientId }, client);
         }
@@ -155,21 +226,21 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteClient(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _repository.Clients.FindByCondition(c => c.ClientId == id).FirstOrDefaultAsync();
             if (client == null)
             {
                 return NotFound();
             }
 
-            _context.Clients.Remove(client);
-            await _context.SaveChangesAsync();
+            _repository.Clients.Delete(client);
+            await _repository.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool ClientExists(int id)
         {
-            return _context.Clients.Any(e => e.ClientId == id);
+            return _repository.Clients.FindByCondition(c => c.ClientId == id).FirstOrDefault() != null;
         }
     }
 }

@@ -3,11 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using AutoFilterer.Attributes;
+using AutoFilterer.Enums;
+using AutoFilterer.Types;
 
 namespace GameRental.DTOModels
 {
+    [GenerateAutoFilter]
     [DisplayName("GameViewModel")]
-    public class GameDTO
+    public class GameDTO : FilterBase
     {
         public int GameId { get; set; }
         [StringLength(100)]
