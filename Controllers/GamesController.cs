@@ -80,7 +80,7 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-            return Ok(_mapper.Map<GameDTO>(game));
+            return Ok(new OkResponse<GameDTO>(_mapper.Map<GameDTO>(game)));
         }
         /// <summary>
         /// Return the most rented game
@@ -107,7 +107,7 @@ namespace GameRental.Controllers
                 .Include(g => g.Platforms)
                 .Include(g => g.Characters).FirstOrDefaultAsync();
 
-            return Ok(_mapper.Map<GameDTO>(game));
+            return Ok(new OkResponse<GameDTO>(_mapper.Map<GameDTO>(game)));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

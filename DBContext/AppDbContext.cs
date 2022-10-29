@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using GameRental.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using GameRental.Helpers;
 
 namespace GameRental.DBContext
 {

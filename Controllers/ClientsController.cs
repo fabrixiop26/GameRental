@@ -103,7 +103,7 @@ namespace GameRental.Controllers
                 ClientId = x,
             }).OrderByDescending(a => a.Quantity).FirstOrDefaultAsync();
 
-            if(result == null)
+            if (result == null)
             {
                 return NotFound();
             }
@@ -112,7 +112,34 @@ namespace GameRental.Controllers
 
             return Ok(_mapper.Map<ClientDTO>(client));
         }
-            
+
+        [HttpGet("GetAgeRange")]
+        public async Task<ActionResult> GetAgeRanges()
+        {
+            // Age = EF.Functions.DateDiffYear()
+            // inneficient calculations are made client-side and not in sql
+            //var results = await _repository.Clients.GetAll().ToListAsync();
+
+            var groupedResults = await _repository.Clients.GetAll().Select(c => new { Age = DateTime.Now.Year - c.Dob.Year })
+                //.GroupBy(p => string.Concat((p.Age - 1) / 10 * 10 + 1,"-", (p.Age - 1) / 10 * 10 + 10))
+                //.GroupBy(p => $"{(p.Age - 1) / 10 * 10 + 1}-{(p.Age - 1) / 10 * 10 + 10}")
+                .GroupBy(p => ((p.Age - 1) / 10 * 10 + 1).ToString() + "-" + ((p.Age - 1) / 10 * 10 + 10).ToString())
+                .Select(g => new { Range = g.Key, Count = g.Count() }).ToListAsync();
+            return Ok(groupedResults);
+        }
+        [HttpGet("GetLeastSoldGame")]
+        public async Task<ActionResult<Game>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
+        {
+            var res = await _repository.Rents.GetLeastRented(minAge,maxAge);
+
+            if (res == null)
+            {
+                return NotFound();
+            }
+            var game = await _repository.Games.FindByCondition(g => g.GameId==res.GameId).FirstOrDefaultAsync();
+            return Ok(game);
+        }
+
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /// <summary>

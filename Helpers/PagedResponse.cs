@@ -2,13 +2,11 @@
 
 namespace GameRental.Helpers
 {
-    public class PagedResponse<T>
+    public class PagedResponse<T> : OkResponse<T>
     {
-        public T Data { get; set; }
         public int Count { get; private set; }
-        public PagedResponse(T _data, int count)
+        public PagedResponse(T _data, int count) :base(_data)
         {
-            Data = _data;
             Count = count;
         }
     }
