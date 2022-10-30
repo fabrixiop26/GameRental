@@ -23,7 +23,7 @@ import {
 } from "react-admin";
 import { Game, GameRecord, PagedResponse, ResourceProvider } from "../types";
 import axios from "axios";
-import { toListParams } from "utils";
+import { getMaxAndMinIds, toListParams, toManyReferenceParams } from "utils";
 
 export class GameRepository implements ResourceProvider<GameRecord> {
   constructor(private resPath: string) {}
@@ -99,7 +99,7 @@ export const gameProvider: DataProvider = {
     params: GetListParams
   ): Promise<GetListResult<any>> {
     //return gameRepository.getList(params);
-    const parsedParams = toListParams(params);
+    const parsedParams = toListParams(params, "gameId");
     const response = await axios.get<PagedResponse<Game>>(`/api/games`, {
       params: {
         ...parsedParams,
@@ -129,25 +129,56 @@ export const gameProvider: DataProvider = {
     resource: string,
     params: GetManyParams
   ): Promise<GetManyResult<any>> {
-    throw new Error("Function not implemented.");
+    //target is the field in the resource
+    // id is the id of the record this is coming from
+    const [minId, maxId] = getMaxAndMinIds(params);
+    const response = await axios.get<PagedResponse<Game>>(`/api/games`, {
+      params: {
+        "gameId.Min": minId,
+        "gameId.Max": maxId,
+      },
+    });
+    const mappedData: GameRecord[] = response.data.data.map((g) => ({
+      ...g,
+      id: g.gameId,
+    }));
+    return {
+      data: mappedData,
+    };
   },
-  getManyReference: function (
+  getManyReference: async function (
     resource: string,
     params: GetManyReferenceParams
   ): Promise<GetManyReferenceResult<any>> {
-    throw new Error("Function not implemented.");
+    const parsedParams = toListParams(params, "gameId");
+    const parsedManyReferenceParams = toManyReferenceParams(params);
+    const response = await axios.get<PagedResponse<Game>>(`/api/games`, {
+      params: {
+        ...parsedParams,
+        ...parsedManyReferenceParams,
+      },
+    });
+    const mappedData: GameRecord[] = response.data.data.map((g) => ({
+      ...g,
+      id: g.gameId,
+    }));
+    return {
+      total: response.data.total,
+      data: mappedData,
+    };
   },
   update: async function (
     resource: string,
     params: UpdateParams<Game>
   ): Promise<UpdateResult<any>> {
-    const response = await axios.put(`/api/games/${params.id}`, params.data);
+    await axios.put(`/api/games/${params.id}`, params.data);
     return { data: { id: params.id, ...params.data } };
   },
   updateMany: async function (
     resource: string,
     params: UpdateManyParams<Game>
   ): Promise<UpdateManyResult<any>> {
+    // NOTE: Bulk actions will be disabled
     throw new Error("Function not implemented.");
   },
   create: async function (
@@ -161,12 +192,14 @@ export const gameProvider: DataProvider = {
     resource: string,
     params: DeleteParams<any>
   ): Promise<DeleteResult<any>> {
-    throw new Error("Function not implemented.");
+    await axios.delete(`/api/games/${params.id}`);
+    return { data: params.previousData };
   },
   deleteMany: async function (
     resource: string,
     params: DeleteManyParams<any>
   ): Promise<DeleteManyResult<any>> {
+    // NOTE: Bulk actions will be disabled
     throw new Error("Function not implemented.");
   },
 };

@@ -41,7 +41,7 @@ export interface ResourceProvider<T extends RaRecord> {
 }
 
 export interface Game {
-  gameId: Identifier;
+  gameId: number;
   name: string;
   characters: string[];
   company: string;
@@ -53,6 +53,41 @@ export interface Game {
 }
 
 export interface GameRecord extends Game, RaRecord {}
+
+export interface Rent {
+  rentId: number;
+  rentedDate: Date;
+  returnDate: Date;
+  rentedPrice: number;
+  clientId: number;
+  gameId: number;
+}
+
+export interface RentRecord extends Rent, RaRecord {}
+
+export interface Client {
+  clientId: number;
+  firstName: string;
+  lastName: string;
+  address: string;
+  dob: Date;
+}
+
+export interface ClientRecord extends Client, RaRecord {}
+
+export interface Platform {
+  platformId: number;
+  name: string;
+}
+
+export interface PlatformRecord extends Platform, RaRecord {}
+
+export interface Character {
+  characterId: number;
+  name: string;
+}
+
+export interface CharacterRecord extends Character, RaRecord {}
 
 export interface ParsedListParams {
   page?: number;
