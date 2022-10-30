@@ -4,6 +4,7 @@ import {
   TextField,
   EditButton,
   NumberField,
+  DeleteButton,
 } from "react-admin";
 
 export const CharacterList = () => {
@@ -12,9 +13,9 @@ export const CharacterList = () => {
       queryOptions={{ refetchInterval: false, refetchOnWindowFocus: false }}
       sort={{ field: "characterId", order: "ASC" }}
     >
-      <Datagrid>
+      <Datagrid bulkActionButtons={false}>
         <NumberField source="characterId" />
-        <TextField source="Name" label="name" />
+        <TextField source="name" label="Name" />
         <EditButton />
       </Datagrid>
     </List>

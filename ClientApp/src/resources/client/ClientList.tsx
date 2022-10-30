@@ -16,7 +16,7 @@ export const ClientList = () => {
       queryOptions={{ refetchInterval: false, refetchOnWindowFocus: false }}
       sort={{ field: "clientId", order: "ASC" }}
     >
-      <Datagrid>
+      <Datagrid bulkActionButtons={false}>
         <NumberField source="clientId" />
         <DateField source="dob" label="Date of Birth" />
         <TextField source="firstName" label="First Name" />

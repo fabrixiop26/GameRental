@@ -1,5 +1,6 @@
 import {
   DateField,
+  DeleteButton,
   NumberField,
   ReferenceField,
   Show,
@@ -12,9 +13,11 @@ export const ClientShow = () => {
   return (
     <Show>
       <SimpleShowLayout>
-        <NumberField source="rentId" label="Rent Id" />
-        <DateField source="rentedDate" />
-        <DateField source="returnDate" />
+        <NumberField source="clientId" />
+        <DateField source="dob" label="Date of Birth" />
+        <TextField source="firstName" label="First Name" />
+        <TextField source="lastName" label="Last Name" />
+        <TextField source="address" label="Address" />
       </SimpleShowLayout>
     </Show>
   );

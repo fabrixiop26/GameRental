@@ -4,6 +4,8 @@ import {
   TextField,
   EditButton,
   NumberField,
+  DeleteButton,
+  DeleteWithConfirmButton,
 } from "react-admin";
 
 export const PlatformList = () => {
@@ -12,10 +14,11 @@ export const PlatformList = () => {
       queryOptions={{ refetchInterval: false, refetchOnWindowFocus: false }}
       sort={{ field: "platformId", order: "ASC" }}
     >
-      <Datagrid>
+      <Datagrid bulkActionButtons={false}>
         <NumberField source="platformId" />
-        <TextField source="Name" label="name" />
+        <TextField source="name" label="Name" />
         <EditButton />
+        <DeleteWithConfirmButton />
       </Datagrid>
     </List>
   );

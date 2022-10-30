@@ -16,7 +16,7 @@ export const RentList = () => {
       queryOptions={{ refetchInterval: false, refetchOnWindowFocus: false }}
       sort={{ field: "rentId", order: "ASC" }}
     >
-      <Datagrid>
+      <Datagrid bulkActionButtons={false}>
         <NumberField source="rentId" />
         <DateField source="rentedDate" />
         <DateField source="returnDate" />
