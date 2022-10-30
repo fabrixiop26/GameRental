@@ -23,7 +23,7 @@ import {
 } from "react-admin";
 import { Game, GameRecord, PagedResponse, ResourceProvider } from "../types";
 import axios from "axios";
-import { getMaxAndMinIds, toListParams, toManyParams } from "utils";
+import { getMaxAndMinIds, toListParams, toManyReferenceParams } from "utils";
 
 export class GameRepository implements ResourceProvider<GameRecord> {
   constructor(private resPath: string) {}
@@ -151,11 +151,11 @@ export const gameProvider: DataProvider = {
     params: GetManyReferenceParams
   ): Promise<GetManyReferenceResult<any>> {
     const parsedParams = toListParams(params, "gameId");
-    const parsedManyParams = toManyParams(params);
+    const parsedManyReferenceParams = toManyReferenceParams(params);
     const response = await axios.get<PagedResponse<Game>>(`/api/games`, {
       params: {
         ...parsedParams,
-        ...parsedManyParams,
+        ...parsedManyReferenceParams,
       },
     });
     const mappedData: GameRecord[] = response.data.data.map((g) => ({

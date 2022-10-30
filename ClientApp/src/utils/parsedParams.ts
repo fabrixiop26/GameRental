@@ -33,7 +33,7 @@ export const getMaxAndMinIds = (params: GetManyParams) => {
   return [minId, maxId];
 };
 
-export const toManyParams = (params: GetManyReferenceParams) => {
+export const toManyReferenceParams = (params: GetManyReferenceParams) => {
   // target is the field in the resource
   // id is the id (value) from this is coming from.
   // if in ReferenceOneField source is used then the value will be the foreign key value and not record's id
