@@ -20,24 +20,24 @@ import {
   UpdateParams,
   UpdateResult,
 } from "react-admin";
-import { Client, ClientRecord, PagedResponse } from "types";
+import { Character, CharacterRecord, PagedResponse } from "types";
 import { getMaxAndMinIds, toListParams, toManyReferenceParams } from "utils";
 
-export const clientProvider: DataProvider = {
+export const characterProvider: DataProvider = {
   getList: async function (
     _: string,
     params: GetListParams
   ): Promise<GetListResult<any>> {
-    //return ClientRepository.getList(params);
-    const parsedParams = toListParams(params, "ClientId");
-    const response = await axios.get<PagedResponse<Client>>(`/api/Clients`, {
+    //return CharacterRepository.getList(params);
+    const parsedParams = toListParams(params, "CharacterId");
+    const response = await axios.get<PagedResponse<Character>>(`/api/Characters`, {
       params: {
         ...parsedParams,
       },
     });
-    const mappedData: ClientRecord[] = response.data.data.map((g) => ({
+    const mappedData: CharacterRecord[] = response.data.data.map((g) => ({
       ...g,
-      id: g.clientId,
+      id: g.characterId,
     }));
     return {
       total: response.data.total,
@@ -46,14 +46,14 @@ export const clientProvider: DataProvider = {
   },
   getOne: async function (
     resource: string,
-    params: GetOneParams<ClientRecord>
+    params: GetOneParams<CharacterRecord>
   ): Promise<GetOneResult<any>> {
-    const response = await axios.get<Client>(`/api/Clients/${params.id}`);
-    const ClientRecord = {
+    const response = await axios.get<Character>(`/api/Characters/${params.id}`);
+    const CharacterRecord = {
       ...response.data,
-      id: response.data.clientId,
+      id: response.data.characterId,
     };
-    return { data: ClientRecord };
+    return { data: CharacterRecord };
   },
   getMany: async function (
     resource: string,
@@ -62,15 +62,15 @@ export const clientProvider: DataProvider = {
     //target is the field in the resource
     // id is the id of the record this is coming from
     const [minId, maxId] = getMaxAndMinIds(params);
-    const response = await axios.get<PagedResponse<Client>>(`/api/Clients`, {
+    const response = await axios.get<PagedResponse<Character>>(`/api/Characters`, {
       params: {
-        "ClientId.Min": minId,
-        "ClientId.Max": maxId,
+        "CharacterId.Min": minId,
+        "CharacterId.Max": maxId,
       },
     });
-    const mappedData: ClientRecord[] = response.data.data.map((g) => ({
+    const mappedData: CharacterRecord[] = response.data.data.map((g) => ({
       ...g,
-      id: g.clientId,
+      id: g.characterId,
     }));
     return {
       data: mappedData,
@@ -80,17 +80,17 @@ export const clientProvider: DataProvider = {
     resource: string,
     params: GetManyReferenceParams
   ): Promise<GetManyReferenceResult<any>> {
-    const parsedParams = toListParams(params, "ClientId");
+    const parsedParams = toListParams(params, "CharacterId");
     const parsedManyRefenceParams = toManyReferenceParams(params);
-    const response = await axios.get<PagedResponse<Client>>(`/api/Clients`, {
+    const response = await axios.get<PagedResponse<Character>>(`/api/Characters`, {
       params: {
         ...parsedParams,
         ...parsedManyRefenceParams,
       },
     });
-    const mappedData: ClientRecord[] = response.data.data.map((g) => ({
+    const mappedData: CharacterRecord[] = response.data.data.map((g) => ({
       ...g,
-      id: g.clientId,
+      id: g.characterId,
     }));
     return {
       total: response.data.total,
@@ -99,30 +99,30 @@ export const clientProvider: DataProvider = {
   },
   update: async function (
     resource: string,
-    params: UpdateParams<Client>
+    params: UpdateParams<Character>
   ): Promise<UpdateResult<any>> {
-    await axios.put(`/api/Clients/${params.id}`, params.data);
+    await axios.put(`/api/Characters/${params.id}`, params.data);
     return { data: { id: params.id, ...params.data } };
   },
   updateMany: async function (
     resource: string,
-    params: UpdateManyParams<Client>
+    params: UpdateManyParams<Character>
   ): Promise<UpdateManyResult<any>> {
     // NOTE: Bulk actions will be disabled
     throw new Error("Function not implemented.");
   },
   create: async function (
     resource: string,
-    params: CreateParams<Client>
+    params: CreateParams<Character>
   ): Promise<CreateResult<any>> {
-    const response = await axios.post<Client>(`/api/Clients`, params.data);
-    return { data: { id: response.data.clientId, ...response.data } };
+    const response = await axios.post<Character>(`/api/Characters`, params.data);
+    return { data: { id: response.data.characterId, ...response.data } };
   },
   delete: async function (
     resource: string,
     params: DeleteParams<any>
   ): Promise<DeleteResult<any>> {
-    await axios.delete(`/api/Clients/${params.id}`);
+    await axios.delete(`/api/Characters/${params.id}`);
     return { data: params.previousData };
   },
   deleteMany: async function (

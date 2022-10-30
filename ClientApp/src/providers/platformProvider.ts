@@ -20,24 +20,24 @@ import {
   UpdateParams,
   UpdateResult,
 } from "react-admin";
-import { Client, ClientRecord, PagedResponse } from "types";
+import { PagedResponse, Platform, PlatformRecord } from "types";
 import { getMaxAndMinIds, toListParams, toManyReferenceParams } from "utils";
 
-export const clientProvider: DataProvider = {
+export const platformProvider: DataProvider = {
   getList: async function (
     _: string,
     params: GetListParams
   ): Promise<GetListResult<any>> {
-    //return ClientRepository.getList(params);
-    const parsedParams = toListParams(params, "ClientId");
-    const response = await axios.get<PagedResponse<Client>>(`/api/Clients`, {
+    //return PlatformRepository.getList(params);
+    const parsedParams = toListParams(params, "PlatformId");
+    const response = await axios.get<PagedResponse<Platform>>(`/api/Platforms`, {
       params: {
         ...parsedParams,
       },
     });
-    const mappedData: ClientRecord[] = response.data.data.map((g) => ({
+    const mappedData: PlatformRecord[] = response.data.data.map((g) => ({
       ...g,
-      id: g.clientId,
+      id: g.platformId,
     }));
     return {
       total: response.data.total,
@@ -46,14 +46,14 @@ export const clientProvider: DataProvider = {
   },
   getOne: async function (
     resource: string,
-    params: GetOneParams<ClientRecord>
+    params: GetOneParams<PlatformRecord>
   ): Promise<GetOneResult<any>> {
-    const response = await axios.get<Client>(`/api/Clients/${params.id}`);
-    const ClientRecord = {
+    const response = await axios.get<Platform>(`/api/Platforms/${params.id}`);
+    const PlatformRecord = {
       ...response.data,
-      id: response.data.clientId,
+      id: response.data.platformId,
     };
-    return { data: ClientRecord };
+    return { data: PlatformRecord };
   },
   getMany: async function (
     resource: string,
@@ -62,15 +62,15 @@ export const clientProvider: DataProvider = {
     //target is the field in the resource
     // id is the id of the record this is coming from
     const [minId, maxId] = getMaxAndMinIds(params);
-    const response = await axios.get<PagedResponse<Client>>(`/api/Clients`, {
+    const response = await axios.get<PagedResponse<Platform>>(`/api/Platforms`, {
       params: {
-        "ClientId.Min": minId,
-        "ClientId.Max": maxId,
+        "PlatformId.Min": minId,
+        "PlatformId.Max": maxId,
       },
     });
-    const mappedData: ClientRecord[] = response.data.data.map((g) => ({
+    const mappedData: PlatformRecord[] = response.data.data.map((g) => ({
       ...g,
-      id: g.clientId,
+      id: g.platformId,
     }));
     return {
       data: mappedData,
@@ -80,17 +80,17 @@ export const clientProvider: DataProvider = {
     resource: string,
     params: GetManyReferenceParams
   ): Promise<GetManyReferenceResult<any>> {
-    const parsedParams = toListParams(params, "ClientId");
+    const parsedParams = toListParams(params, "PlatformId");
     const parsedManyRefenceParams = toManyReferenceParams(params);
-    const response = await axios.get<PagedResponse<Client>>(`/api/Clients`, {
+    const response = await axios.get<PagedResponse<Platform>>(`/api/Platforms`, {
       params: {
         ...parsedParams,
         ...parsedManyRefenceParams,
       },
     });
-    const mappedData: ClientRecord[] = response.data.data.map((g) => ({
+    const mappedData: PlatformRecord[] = response.data.data.map((g) => ({
       ...g,
-      id: g.clientId,
+      id: g.platformId,
     }));
     return {
       total: response.data.total,
@@ -99,30 +99,30 @@ export const clientProvider: DataProvider = {
   },
   update: async function (
     resource: string,
-    params: UpdateParams<Client>
+    params: UpdateParams<Platform>
   ): Promise<UpdateResult<any>> {
-    await axios.put(`/api/Clients/${params.id}`, params.data);
+    await axios.put(`/api/Platforms/${params.id}`, params.data);
     return { data: { id: params.id, ...params.data } };
   },
   updateMany: async function (
     resource: string,
-    params: UpdateManyParams<Client>
+    params: UpdateManyParams<Platform>
   ): Promise<UpdateManyResult<any>> {
     // NOTE: Bulk actions will be disabled
     throw new Error("Function not implemented.");
   },
   create: async function (
     resource: string,
-    params: CreateParams<Client>
+    params: CreateParams<Platform>
   ): Promise<CreateResult<any>> {
-    const response = await axios.post<Client>(`/api/Clients`, params.data);
-    return { data: { id: response.data.clientId, ...response.data } };
+    const response = await axios.post<Platform>(`/api/Platforms`, params.data);
+    return { data: { id: response.data.platformId, ...response.data } };
   },
   delete: async function (
     resource: string,
     params: DeleteParams<any>
   ): Promise<DeleteResult<any>> {
-    await axios.delete(`/api/Clients/${params.id}`);
+    await axios.delete(`/api/Platforms/${params.id}`);
     return { data: params.previousData };
   },
   deleteMany: async function (

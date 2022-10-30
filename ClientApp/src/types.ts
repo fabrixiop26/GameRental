@@ -41,7 +41,7 @@ export interface ResourceProvider<T extends RaRecord> {
 }
 
 export interface Game {
-  gameId: Identifier;
+  gameId: number;
   name: string;
   characters: string[];
   company: string;
@@ -74,6 +74,20 @@ export interface Client {
 }
 
 export interface ClientRecord extends Client, RaRecord {}
+
+export interface Platform {
+  platformId: number;
+  name: string;
+}
+
+export interface PlatformRecord extends Platform, RaRecord {}
+
+export interface Character {
+  characterId: number;
+  name: string;
+}
+
+export interface CharacterRecord extends Character, RaRecord {}
 
 export interface ParsedListParams {
   page?: number;

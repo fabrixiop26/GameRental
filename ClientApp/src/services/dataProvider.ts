@@ -1,11 +1,16 @@
 import { DataProvider } from "react-admin";
 import { gameProvider, GameRepository } from "../providers/gameProvider";
-import { Game, ParsedListParams, ResourceNames, ResourceProvider } from "types";
 import { rentProvider } from "providers/rentProvider";
+import { clientProvider } from "providers/clientProvider";
+import { platformProvider } from "providers/platformProvider";
+import { characterProvider } from "providers/characterProvider";
 
 const providers: Record<string, DataProvider> = {
   games: gameProvider,
   rents: rentProvider,
+  clients: clientProvider,
+  platforms: platformProvider,
+  characters: characterProvider,
 };
 
 export const dataProvider: DataProvider<string> = {
