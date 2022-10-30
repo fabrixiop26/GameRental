@@ -21,7 +21,10 @@ export const GameList = () => {
         <DateField source="releaseDate" />
         <TextField source="company" />
         <TextField source="director" />
-        <NumberField source="rentPrice" />
+        <NumberField
+          source="rentPrice"
+          options={{ style: "currency", currency: "USD" }}
+        />
         <ShowButton />
         <EditButton />
       </Datagrid>

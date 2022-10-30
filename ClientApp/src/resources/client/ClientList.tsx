@@ -1,22 +1,30 @@
 import {
+  List,
+  Datagrid,
+  TextField,
   DateField,
+  ShowButton,
+  EditButton,
   NumberField,
   ReferenceField,
-  Show,
-  SimpleShowLayout,
-  TextField,
+  ReferenceOneField,
 } from "react-admin";
 
-export const RentShow = () => {
+export const ClientList = () => {
   return (
-    <Show>
-      <SimpleShowLayout>
+    <List
+      queryOptions={{ refetchInterval: false, refetchOnWindowFocus: false }}
+      sort={{ field: "clientId", order: "ASC" }}
+    >
+      <Datagrid>
         <NumberField source="clientId" />
         <DateField source="dob" label="Date of Birth" />
         <TextField source="firstName" label="First Name" />
         <TextField source="lastName" label="Last Name" />
         <TextField source="address" label="Address" />
-      </SimpleShowLayout>
-    </Show>
+        <ShowButton />
+        <EditButton />
+      </Datagrid>
+    </List>
   );
 };
