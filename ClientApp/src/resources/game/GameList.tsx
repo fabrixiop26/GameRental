@@ -11,8 +11,11 @@ import {
 
 export const GameList = () => {
   return (
-    <List queryOptions={{ refetchInterval: false }}>
-      <Datagrid >
+    <List
+      queryOptions={{ refetchInterval: false }}
+      sort={{ field: "gameId", order: "ASC" }}
+    >
+      <Datagrid bulkActionButtons={false}>
         <NumberField source="gameId" />
         <TextField source="name" />
         <DateField source="releaseDate" />

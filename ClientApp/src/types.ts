@@ -54,6 +54,17 @@ export interface Game {
 
 export interface GameRecord extends Game, RaRecord {}
 
+export interface Rent {
+  rentId: number;
+  rentedDate: Date;
+  returnDate: Date;
+  rentedPrice: number;
+  clientId: number;
+  gameId: number;
+}
+
+export interface RentRecord extends Rent, RaRecord {}
+
 export interface ParsedListParams {
   page?: number;
   perPage?: number;

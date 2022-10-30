@@ -1,9 +1,11 @@
 import { DataProvider } from "react-admin";
 import { gameProvider, GameRepository } from "../providers/gameProvider";
 import { Game, ParsedListParams, ResourceNames, ResourceProvider } from "types";
+import { rentProvider } from "providers/rentProvider";
 
 const providers: Record<string, DataProvider> = {
   games: gameProvider,
+  rents: rentProvider,
 };
 
 export const dataProvider: DataProvider<string> = {
