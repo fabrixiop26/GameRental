@@ -65,6 +65,16 @@ export interface Rent {
 
 export interface RentRecord extends Rent, RaRecord {}
 
+export interface Client {
+  clientId: number;
+  firstName: string;
+  lastName: string;
+  address: string;
+  dob: Date;
+}
+
+export interface ClientRecord extends Client, RaRecord {}
+
 export interface ParsedListParams {
   page?: number;
   perPage?: number;
