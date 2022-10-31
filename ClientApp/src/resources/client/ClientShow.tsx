@@ -14,10 +14,11 @@ export const ClientShow = () => {
     <Show>
       <SimpleShowLayout>
         <NumberField source="clientId" />
-        <DateField source="dob" label="Date of Birth" />
+        <NumberField source="nit" label="NIT" />
         <TextField source="firstName" label="First Name" />
         <TextField source="lastName" label="Last Name" />
         <TextField source="address" label="Address" />
+        <DateField source="dob" label="Date of Birth" />
       </SimpleShowLayout>
     </Show>
   );

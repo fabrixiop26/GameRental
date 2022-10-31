@@ -67,6 +67,7 @@ export interface RentRecord extends Rent, RaRecord {}
 
 export interface Client {
   clientId: number;
+  nit: number;
   firstName: string;
   lastName: string;
   address: string;
