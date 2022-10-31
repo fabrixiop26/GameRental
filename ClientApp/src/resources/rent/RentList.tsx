@@ -8,13 +8,32 @@ import {
   NumberField,
   ReferenceField,
   ReferenceOneField,
+  FilterList,
+  FilterListItem,
 } from "react-admin";
+import { Card, CardContent } from "@mui/material";
+import MailIcon from "@mui/icons-material/MailOutline";
+import { QuickFilter } from "shared";
+
+const rentFilters = [
+  <QuickFilter
+    source="returnDate_lte"
+    label="Expired"
+    defaultValue={new Date()}
+  />,
+  <QuickFilter
+    source="rentedDate_gte"
+    label="Today"
+    defaultValue={new Date()}
+  />,
+];
 
 export const RentList = () => {
   return (
     <List
       queryOptions={{ refetchInterval: false, refetchOnWindowFocus: false }}
       sort={{ field: "rentId", order: "ASC" }}
+      filters={rentFilters}
     >
       <Datagrid bulkActionButtons={false}>
         <NumberField source="rentId" />

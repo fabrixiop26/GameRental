@@ -1,6 +1,7 @@
 import {
   Create,
   DateInput,
+  number,
   NumberInput,
   required,
   SimpleForm,
@@ -12,7 +13,7 @@ export const ClientCreate = () => (
     <SimpleForm>
       <TextInput source="firstName" validate={required()} />
       <TextInput source="lastName" validate={required()} />
-      <NumberInput source="nit" validate={required()} />
+      <TextInput source="nit" label="NIT" validate={[required(), number()]} />
       <TextInput source="address" label="Address" />
       <DateInput label="Date of Birth" source="dob" defaultValue={new Date()} />
     </SimpleForm>

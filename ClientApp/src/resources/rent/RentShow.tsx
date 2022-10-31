@@ -11,11 +11,19 @@ export const RentShow = () => {
   return (
     <Show>
       <SimpleShowLayout>
-        <NumberField source="clientId" />
-        <DateField source="dob" label="Date of Birth" />
-        <TextField source="firstName" label="First Name" />
-        <TextField source="lastName" label="Last Name" />
-        <TextField source="address" label="Address" />
+        <NumberField source="rentId" />
+        <DateField source="rentedDate" />
+        <DateField source="returnDate" />
+        <ReferenceField reference="games" source="gameId" link="show">
+          <TextField source="name" label="Game" />
+        </ReferenceField>
+        <ReferenceField reference="clients" source="clientId" link="show">
+          <TextField source="nit" label="Client NIT" />
+        </ReferenceField>
+        <NumberField
+          source="rentedPrice"
+          options={{ style: "currency", currency: "USD" }}
+        />
       </SimpleShowLayout>
     </Show>
   );

@@ -1,6 +1,7 @@
 import {
   DateInput,
   Edit,
+  number,
   NumberInput,
   required,
   SimpleForm,
@@ -11,7 +12,7 @@ export const ClientEdit = () => (
   <Edit>
     <SimpleForm>
       <TextInput disabled label="Id" source="clientId" />
-      <NumberInput source="nit" validate={required()} />
+      <TextInput source="nit" label="NIT" validate={[required(), number()]} />
       <TextInput source="firstName" validate={required()} />
       <TextInput source="lastName" validate={required()} />
       <TextInput source="address" label="Address" />

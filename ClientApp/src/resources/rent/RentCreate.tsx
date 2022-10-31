@@ -76,6 +76,7 @@ export const RentCreate = () => {
           source="rentedDate"
           defaultValue={new Date()}
           validate={[required()]}
+          disabled
         />
         <DateInput
           label="Return Date"

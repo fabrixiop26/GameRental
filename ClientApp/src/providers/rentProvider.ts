@@ -29,7 +29,7 @@ export const rentProvider: DataProvider = {
     params: GetListParams
   ): Promise<GetListResult<any>> {
     //return RentRepository.getList(params);
-    const parsedParams = toListParams(params, "RentId");
+    let parsedParams = toListParams(params, "RentId");
     const response = await axios.get<PagedResponse<Rent>>(`/api/Rents`, {
       params: {
         ...parsedParams,

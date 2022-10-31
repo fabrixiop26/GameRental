@@ -5,10 +5,44 @@ import {
 } from "react-admin";
 import { ParsedListParams } from "types";
 
+const operators: Record<string, string> = {
+  _gte: "Min",
+  _lte: "Max",
+  _eql: "EQ",
+};
+
+const parseOperators = (filter: Record<string, any>) => {
+  // filters is like [
+  //    { field: "Date.Min",value: "2018-01-01"},
+  //    { field: "Id.Max", value: 3}
+  // ]
+  return Object.keys(filter).flatMap((key) => {
+    //extract the operator _gte or _lte
+    const operator = operators[key.slice(-4)];
+    const field = key.slice(0, -4);
+    if (operator === "EQ") {
+      return [
+        {
+          field: `${field}.Min`,
+          value: filter[key],
+        },
+        {
+          field: `${field}.Max`,
+          value: filter[key],
+        },
+      ];
+    }
+    return operator
+      ? { field: `${field}.${operator}`, value: filter[key] }
+      : { field: key, value: filter[key] };
+  });
+};
+
 export const toListParams = (
   params: GetListParams,
   sortIdOverride: string = "id"
 ) => {
+  const filterList = parseOperators(params.filter);
   let parsedParams: ParsedListParams = {};
   if (params.pagination) {
     parsedParams = {
@@ -23,6 +57,15 @@ export const toListParams = (
       sortBy: params.sort.order === "ASC" ? 0 : 1,
     };
   }
+  filterList.forEach(({ field, value }) => {
+    parsedParams = {
+      ...parsedParams,
+      [field]: value,
+    };
+  });
+  parsedParams = {
+    ...parsedParams,
+  };
   return parsedParams;
 };
 

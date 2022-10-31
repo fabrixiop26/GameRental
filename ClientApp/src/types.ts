@@ -90,12 +90,16 @@ export interface Character {
 
 export interface CharacterRecord extends Character, RaRecord {}
 
-export interface ParsedListParams {
+export interface FilterParams {
+  [key: string]: string | number;
+}
+
+export type ParsedListParams = {
   page?: number;
   perPage?: number;
   sort?: string;
   sortBy?: number;
-}
+} & FilterParams;
 
 export interface PagedResponse<T> {
   data: T[];

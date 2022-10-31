@@ -14,7 +14,7 @@ export const ClientShow = () => {
     <Show>
       <SimpleShowLayout>
         <NumberField source="clientId" />
-        <NumberField source="nit" label="NIT" />
+        <TextField source="nit" label="NIT" textAlign="right" />
         <TextField source="firstName" label="First Name" />
         <TextField source="lastName" label="Last Name" />
         <TextField source="address" label="Address" />
