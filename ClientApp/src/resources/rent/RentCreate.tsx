@@ -1,23 +1,14 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  AutocompleteInput,
   Create,
   DateInput,
-  Labeled,
-  NumberField,
-  NumberInput,
   ReferenceInput,
   required,
   SelectInput,
   SimpleForm,
-  TextInput,
   useChoicesContext,
-  useCreateContext,
 } from "react-admin";
-import { useController } from "react-hook-form";
-import { Game } from "types";
-import TextField from "@mui/material/TextField";
-
+import { Game, Rent } from "types";
 interface GameSelectorProps {
   onGameSelected(g: Game): void;
 }
@@ -27,24 +18,7 @@ const GameSelector: React.FC<GameSelectorProps> = ({ onGameSelected }) => {
   useEffect(() => {
     onGameSelected(selectedChoices[0]);
   }, [selectedChoices]);
-  return <AutocompleteInput label="Title" optionText="name" />;
-};
-
-/* const RentInput = ({ rentPrice }: { rentPrice: number }) => {
-  const {
-    field,
-    fieldState: { error, isTouched, isDirty },
-    formState: { isSubmitted },
-  } = useController({ name: "", defaultValue: rentPrice });
-  return (
-    <TextField {...field} label="Rent Price" error={!!error} type="number" disabled/>
-  );
-}; */
-
-const RentInput = ({ rentPrice }: { rentPrice: number }) => {
-  return (
-    <NumberInput label="Rented Price" value={rentPrice} source="rentedPrice" />
-  );
+  return <SelectInput label="Game" optionText="name" validate={required()} />;
 };
 
 export const RentCreate = () => {
@@ -52,25 +26,31 @@ export const RentCreate = () => {
   const onGameSelected = (p: Game) => {
     setSelectedGame(p);
   };
+
+  // inject rentPrice from select game
+  const onPreCreate = (data: Partial<Rent>) => ({
+    ...data,
+    rentedPrice: selectedGame!.rentPrice,
+  });
+
   return (
-    <Create>
+    <Create transform={onPreCreate}>
       <SimpleForm>
         <ReferenceInput
           source="gameId"
           reference="games"
           validate={[required()]}
+          isRequired
         >
           <GameSelector onGameSelected={onGameSelected} />
         </ReferenceInput>
-        <RentInput rentPrice={selectedGame?.rentPrice || 0} />
-        <NumberInput
-          label="Client Id"
+        <ReferenceInput
           source="clientId"
-          min={0}
-          isRequired
+          reference="clients"
           validate={[required()]}
-          disabled
-        />
+        >
+          <SelectInput label="Client NIT" optionText="nit" />
+        </ReferenceInput>
         <DateInput
           label="Rented Date"
           source="rentedDate"
