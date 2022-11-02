@@ -6,12 +6,24 @@ import {
   Show,
   SimpleShowLayout,
   TextField,
+  useRecordContext,
 } from "react-admin";
-import { RentRecord } from "types";
+import { ClientRecord, RentRecord } from "types";
+
+const ShowTitle = () => {
+  const record: ClientRecord = useRecordContext();
+  // the record can be empty while loading
+  if (!record) return null;
+  return (
+    <span>
+      Client - {record.firstName} {record.lastName}
+    </span>
+  );
+};
 
 export const ClientShow = () => {
   return (
-    <Show>
+    <Show title={<ShowTitle />}>
       <SimpleShowLayout>
         <NumberField source="clientId" />
         <TextField source="nit" label="NIT" textAlign="right" />

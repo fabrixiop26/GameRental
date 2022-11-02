@@ -127,18 +127,6 @@ namespace GameRental.Controllers
                 .Select(g => new { Range = g.Key, Count = g.Count() }).ToListAsync();
             return Ok(groupedResults);
         }
-        [HttpGet("GetLeastSoldGame")]
-        public async Task<ActionResult<Game>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
-        {
-            var res = await _repository.Rents.GetLeastRented(minAge,maxAge);
-
-            if (res == null)
-            {
-                return NotFound();
-            }
-            var game = await _repository.Games.FindByCondition(g => g.GameId==res.GameId).FirstOrDefaultAsync();
-            return Ok(game);
-        }
 
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

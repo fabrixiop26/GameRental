@@ -45,8 +45,13 @@ export const GameShow = () => {
         <DateField source="releaseDate" />
         <TextField source="company" />
         <TextField source="director" />
-        <NumberField source="rentPrice" />
+        <TextField source="producer" />
+        <NumberField
+          source="rentPrice"
+          options={{ style: "currency", currency: "USD" }}
+        />
         <TextArrayField source="platforms" />
+        <TextArrayField source="characters" />
       </SimpleShowLayout>
     </Show>
   );

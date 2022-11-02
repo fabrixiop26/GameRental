@@ -15,16 +15,22 @@ import { Card, CardContent } from "@mui/material";
 import MailIcon from "@mui/icons-material/MailOutline";
 import { QuickFilter } from "shared";
 
+const getToday = () => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
 const rentFilters = [
   <QuickFilter
     source="returnDate_lte"
     label="Expired"
-    defaultValue={new Date()}
+    defaultValue={getToday()}
   />,
   <QuickFilter
     source="rentedDate_gte"
     label="Today"
-    defaultValue={new Date()}
+    defaultValue={getToday()}
   />,
 ];
 
