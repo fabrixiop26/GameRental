@@ -19,10 +19,11 @@ var logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 // Add services to the container.
-// use lowercase in paths to use /products instead of /Products
-builder.Services.AddRouting(options => options.LowercaseUrls = true);
+// use lowercase in paths to use /products instead of /Products (not for better readability)
+//builder.Services.AddRouting(options => options.LowercaseUrls = true);
 // Use DI for automapper
 builder.Services.AddAutoMapper(typeof(Program));
+// with DTO this might not be necessary
 builder.Services.AddControllers().AddJsonOptions(j => j.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => {
