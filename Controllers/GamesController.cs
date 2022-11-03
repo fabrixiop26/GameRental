@@ -179,6 +179,49 @@ namespace GameRental.Controllers
             return CreatedAtAction("GetGame", new { id = game.GameId }, game);
         }
 
+        [HttpPost("{id}/EditPlaforms")]
+        public async Task<IActionResult> EditGamePlatforms(int id, [FromBody] List<int> platformsId)
+        {
+            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).FirstOrDefaultAsync();
+            if(game == null)
+            {
+                return NotFound();
+            }
+
+            var platforms = await _repository.Platforms.FindByCondition(p => platformsId.Contains(p.PlatformId)).ToListAsync();
+            // Set the platforms to the ones here to allow editing/adding
+            var addedPlatforms = _mapper.Map<List<Platform>>(platforms);
+            //Remove previous platforms
+            game.Platforms.Clear();
+            // Set new platforms
+            game.Platforms = addedPlatforms;
+
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
+        }
+        [HttpPost("{id}/EditCharacters")]
+        public async Task<IActionResult> EditGameCharacters(int id, [FromBody] List<int> charactersId)
+        {
+            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Characters).FirstOrDefaultAsync();
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            var characters = await _repository.Characters.FindByCondition(c => charactersId.Contains(c.CharacterId)).ToListAsync();
+            // Set the platforms to the ones here to allow editing/adding
+            var addedCharacters = _mapper.Map<List<Character>>(characters);
+            //Remove previous characters
+            game.Characters.Clear();
+            // Set new characters
+            game.Characters = addedCharacters;
+
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         /// <summary>
         /// Deletes a Game by its id
         /// </summary>
