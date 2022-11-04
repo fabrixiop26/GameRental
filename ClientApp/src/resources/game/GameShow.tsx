@@ -1,12 +1,15 @@
 import React from "react";
 import {
+  ArrayField,
   ArrayFieldProps,
   ChipField,
   DateField,
   NumberField,
+  ReferenceArrayField,
   Show,
   ShowButton,
   SimpleShowLayout,
+  SingleFieldList,
   TextField,
   useRecordContext,
   useShowContext,
@@ -50,8 +53,16 @@ export const GameShow = () => {
           source="rentPrice"
           options={{ style: "currency", currency: "USD" }}
         />
-        <TextArrayField source="platforms" />
-        <TextArrayField source="characters" />
+        <ArrayField source="platforms">
+          <SingleFieldList>
+            <ChipField source="name" clickable={false}/>
+          </SingleFieldList>
+        </ArrayField>
+        <ArrayField source="characters">
+          <SingleFieldList>
+            <ChipField source="name" clickable={false}/>
+          </SingleFieldList>
+        </ArrayField>
       </SimpleShowLayout>
     </Show>
   );

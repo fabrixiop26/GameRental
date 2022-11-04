@@ -30,11 +30,14 @@ export const platformProvider: DataProvider = {
   ): Promise<GetListResult<any>> {
     //return PlatformRepository.getList(params);
     const parsedParams = toListParams(params, "PlatformId");
-    const response = await axios.get<PagedResponse<Platform>>(`/api/Platforms`, {
-      params: {
-        ...parsedParams,
-      },
-    });
+    const response = await axios.get<PagedResponse<Platform>>(
+      `/api/Platforms`,
+      {
+        params: {
+          ...parsedParams,
+        },
+      }
+    );
     const mappedData: PlatformRecord[] = response.data.data.map((g) => ({
       ...g,
       id: g.platformId,
@@ -59,15 +62,28 @@ export const platformProvider: DataProvider = {
     resource: string,
     params: GetManyParams
   ): Promise<GetManyResult<any>> {
+    let parsedParams = params;
+    const isEdgeCase = params.ids.some(
+      (v) => typeof v !== "number" || typeof v !== "string"
+    );
+    if (isEdgeCase) {
+      parsedParams = {
+        ...parsedParams,
+        ids: params.ids.map((v: any) => v.platformId),
+      };
+    }
     //target is the field in the resource
     // id is the id of the record this is coming from
-    const [minId, maxId] = getMaxAndMinIds(params);
-    const response = await axios.get<PagedResponse<Platform>>(`/api/Platforms`, {
-      params: {
-        "PlatformId.Min": minId,
-        "PlatformId.Max": maxId,
-      },
-    });
+    const [minId, maxId] = getMaxAndMinIds(parsedParams);
+    const response = await axios.get<PagedResponse<Platform>>(
+      `/api/Platforms`,
+      {
+        params: {
+          "PlatformId.Min": minId,
+          "PlatformId.Max": maxId,
+        },
+      }
+    );
     const mappedData: PlatformRecord[] = response.data.data.map((g) => ({
       ...g,
       id: g.platformId,
@@ -82,12 +98,15 @@ export const platformProvider: DataProvider = {
   ): Promise<GetManyReferenceResult<any>> {
     const parsedParams = toListParams(params, "PlatformId");
     const parsedManyRefenceParams = toManyReferenceParams(params);
-    const response = await axios.get<PagedResponse<Platform>>(`/api/Platforms`, {
-      params: {
-        ...parsedParams,
-        ...parsedManyRefenceParams,
-      },
-    });
+    const response = await axios.get<PagedResponse<Platform>>(
+      `/api/Platforms`,
+      {
+        params: {
+          ...parsedParams,
+          ...parsedManyRefenceParams,
+        },
+      }
+    );
     const mappedData: PlatformRecord[] = response.data.data.map((g) => ({
       ...g,
       id: g.platformId,
