@@ -30,11 +30,14 @@ export const characterProvider: DataProvider = {
   ): Promise<GetListResult<any>> {
     //return CharacterRepository.getList(params);
     const parsedParams = toListParams(params, "CharacterId");
-    const response = await axios.get<PagedResponse<Character>>(`/api/Characters`, {
-      params: {
-        ...parsedParams,
-      },
-    });
+    const response = await axios.get<PagedResponse<Character>>(
+      `/api/Characters`,
+      {
+        params: {
+          ...parsedParams,
+        },
+      }
+    );
     const mappedData: CharacterRecord[] = response.data.data.map((g) => ({
       ...g,
       id: g.characterId,
@@ -59,15 +62,28 @@ export const characterProvider: DataProvider = {
     resource: string,
     params: GetManyParams
   ): Promise<GetManyResult<any>> {
+    let parsedParams = params;
+    const isEdgeCase = params.ids.some(
+      (v) => typeof v !== "number" || typeof v !== "string"
+    );
+    if (isEdgeCase) {
+      parsedParams = {
+        ...parsedParams,
+        ids: params.ids.map((v: any) => v.characterId),
+      };
+    }
     //target is the field in the resource
     // id is the id of the record this is coming from
-    const [minId, maxId] = getMaxAndMinIds(params);
-    const response = await axios.get<PagedResponse<Character>>(`/api/Characters`, {
-      params: {
-        "CharacterId.Min": minId,
-        "CharacterId.Max": maxId,
-      },
-    });
+    const [minId, maxId] = getMaxAndMinIds(parsedParams);
+    const response = await axios.get<PagedResponse<Character>>(
+      `/api/Characters`,
+      {
+        params: {
+          "CharacterId.Min": minId,
+          "CharacterId.Max": maxId,
+        },
+      }
+    );
     const mappedData: CharacterRecord[] = response.data.data.map((g) => ({
       ...g,
       id: g.characterId,
@@ -82,12 +98,15 @@ export const characterProvider: DataProvider = {
   ): Promise<GetManyReferenceResult<any>> {
     const parsedParams = toListParams(params, "CharacterId");
     const parsedManyRefenceParams = toManyReferenceParams(params);
-    const response = await axios.get<PagedResponse<Character>>(`/api/Characters`, {
-      params: {
-        ...parsedParams,
-        ...parsedManyRefenceParams,
-      },
-    });
+    const response = await axios.get<PagedResponse<Character>>(
+      `/api/Characters`,
+      {
+        params: {
+          ...parsedParams,
+          ...parsedManyRefenceParams,
+        },
+      }
+    );
     const mappedData: CharacterRecord[] = response.data.data.map((g) => ({
       ...g,
       id: g.characterId,
@@ -115,7 +134,10 @@ export const characterProvider: DataProvider = {
     resource: string,
     params: CreateParams<Character>
   ): Promise<CreateResult<any>> {
-    const response = await axios.post<Character>(`/api/Characters`, params.data);
+    const response = await axios.post<Character>(
+      `/api/Characters`,
+      params.data
+    );
     return { data: { id: response.data.characterId, ...response.data } };
   },
   delete: async function (

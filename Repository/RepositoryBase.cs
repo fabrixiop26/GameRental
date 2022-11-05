@@ -30,6 +30,7 @@ namespace GameRental.Repository
         public void Update(T entity)
         {
             DbContext.Set<T>().Update(entity);
+            //DbContext.Entry(entity).State = EntityState.Modified;
         }
 
         public void Delete(T entity)

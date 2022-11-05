@@ -17,5 +17,6 @@ namespace GameRental.Repository
         {
             return PagedList<Game>.ToPagedList(GetAll().ApplyFilterWithoutPagination(_params).Include(g => g.Platforms).Include(g => g.Characters), _params.Page, _params.PerPage);
         }
+
     }
 }

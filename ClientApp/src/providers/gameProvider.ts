@@ -171,7 +171,9 @@ export const gameProvider: DataProvider = {
     resource: string,
     params: UpdateParams<Game>
   ): Promise<UpdateResult<any>> {
-    await axios.put(`/api/games/${params.id}`, params.data);
+    await axios.put(`/api/games/${params.id}`, {
+      ...params.data,
+    });
     return { data: { id: params.id, ...params.data } };
   },
   updateMany: async function (

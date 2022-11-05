@@ -8,7 +8,10 @@ namespace GameRental.Profiles
     {
         public GameProfile()
         {
-            CreateMap<Game, GameDTO>().ReverseMap();
+            // Ignored Properties are managed manually
+            CreateMap<Game, GameDTO>().ReverseMap()
+                .ForPath(s => s.Platforms, opt => opt.Ignore())
+                .ForPath(s => s.Characters, opt => opt.Ignore());
         }
     }
 }

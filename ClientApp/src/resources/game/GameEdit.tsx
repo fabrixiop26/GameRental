@@ -20,7 +20,7 @@ import {
   useRecordContext,
 } from "react-admin";
 import { Game, GameRecord, PlatformRecord } from "types";
-import { CustomSelectInput } from "shared";
+import { RecordSelectInput } from "shared";
 import { Stack } from "@mui/material";
 
 const GameEditActions = () => (
@@ -54,7 +54,10 @@ export const GameEdit = () => {
           validate={[required()]}
         />
         <ReferenceArrayInput source="platforms" reference="platforms">
-          <CustomSelectInput optionText="name" optionValue="platformId" />
+          <RecordSelectInput optionText="name" optionValue="platformId" />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="characters" reference="characters">
+          <RecordSelectInput optionText="name" optionValue="characterId" />
         </ReferenceArrayInput>
       </SimpleForm>
     </Edit>

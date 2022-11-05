@@ -30,9 +30,6 @@ import {
   useSupportCreateSuggestion,
 } from "react-admin";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
-import { Transform } from "stream";
-import { Platform } from "types";
 
 const PREFIX = "RaSelectArrayInput";
 
@@ -57,7 +54,7 @@ const StyledFormControl = styled(FormControl, {
   },
 }));
 
-interface CustomSelectInputProps {
+interface RecordSelectInputProps {
   optionText?: string;
   optionValue?: string;
   label?: string;
@@ -67,12 +64,12 @@ interface CustomSelectInputProps {
   className?: string;
 }
 
-export const CustomSelectInput = (props: CustomSelectInputProps) => {
+export const RecordSelectInput = (props: RecordSelectInputProps) => {
   const {
     resource: resourceProp,
     source: sourceProp,
     optionText,
-    optionValue,
+    optionValue = "id",
     label,
     emptyValue,
   } = props;
@@ -147,18 +144,17 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
 
   const inputLabel = useRef(null);
 
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
-    (allChoices || []).filter((p) =>
-      field.value.some((ap: any) => ap.platformId === p.platformId)
-    )
+  const filterValues = () =>
+    (allChoices || []).filter((p: RaRecord) =>
+      field.value.some((ap: RaRecord) => ap[optionValue] === p[optionValue])
+    );
+
+  const [selectedValues, setSelectedValues] = useState<RaRecord[]>(
+    filterValues()
   );
 
   useEffect(() => {
-    setSelectedPlatforms(
-      (allChoices || []).filter((p) =>
-        field.value.some((ap: any) => ap.platformId === p.platformId)
-      )
-    );
+    setSelectedValues(filterValues());
   }, [field.value, allChoices]);
 
   if (isLoading) {
@@ -195,25 +191,6 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
         multiple
         error={!!fetchError || ((isTouched || isSubmitted) && invalid)}
         renderValue={(selectedIds: any[]) => {
-          /* return (
-            <div className={SelectArrayInputClasses.chips}>
-              {selected
-                .map((item) =>
-                  (allChoices || []).find(
-                    (choice) => getChoiceValue(choice) === getChoiceValue(item)
-                  )
-                )
-                .filter((item) => !!item)
-                .map((item) => (
-                  <Chip
-                    key={getChoiceValue(item)}
-                    label={renderMenuItemOption(item)}
-                    className={SelectArrayInputClasses.chip}
-                    size="small"
-                  />
-                ))}
-            </div>
-          ); */
           return (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
               {selectedIds.map((item) => (
@@ -230,7 +207,7 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
         data-testid="selectArray"
         size="small"
         {...field}
-        value={selectedPlatforms}
+        value={selectedValues}
         onChange={handleMultipleChange}
       >
         {allChoices.map(renderMenuItem)}

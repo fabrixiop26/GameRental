@@ -130,13 +130,23 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutGame(int id, GameDTO game)
         {
-            var newGame = _mapper.Map<Game>(game);
-            if (id != newGame.GameId)
+            var currentGame = await _repository.Games.FindByCondition(g => g.GameId == id)
+                .Include(g => g.Platforms)
+                .Include(g => g.Characters).FirstOrDefaultAsync();
+            if (currentGame == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+            // track entity
+            _repository.Games.Update(currentGame);
+            // update many-to-many relation ship
+            var platformIds = game.Platforms.Select(p => p.PlatformId);
+            currentGame.Platforms = await _repository.Platforms.FindByCondition(p => platformIds.Contains(p.PlatformId)).ToListAsync();
 
-            _repository.Games.Update(newGame);
+            var characterIds = game.Characters.Select(p => p.CharacterId);
+            currentGame.Characters = await _repository.Characters.FindByCondition(c => characterIds.Contains(c.CharacterId)).ToListAsync();
+            // Update rest of flat properties
+            currentGame = _mapper.Map(game, currentGame);
 
             try
             {
@@ -189,12 +199,10 @@ namespace GameRental.Controllers
             }
 
             var platforms = await _repository.Platforms.FindByCondition(p => platformsId.Contains(p.PlatformId)).ToListAsync();
-            // Set the platforms to the ones here to allow editing/adding
-            var addedPlatforms = _mapper.Map<List<Platform>>(platforms);
             //Remove previous platforms
             game.Platforms.Clear();
             // Set new platforms
-            game.Platforms = addedPlatforms;
+            game.Platforms = platforms;
 
             await _repository.SaveChangesAsync();
 
@@ -210,12 +218,10 @@ namespace GameRental.Controllers
             }
 
             var characters = await _repository.Characters.FindByCondition(c => charactersId.Contains(c.CharacterId)).ToListAsync();
-            // Set the platforms to the ones here to allow editing/adding
-            var addedCharacters = _mapper.Map<List<Character>>(characters);
             //Remove previous characters
             game.Characters.Clear();
             // Set new characters
-            game.Characters = addedCharacters;
+            game.Characters = characters;
 
             await _repository.SaveChangesAsync();
 
@@ -238,12 +244,11 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteGame(int id)
         {
-            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).FirstOrDefaultAsync();
+            var game = await _repository.Games.FindByCondition(g => g.GameId == id).FirstOrDefaultAsync();
             if (game == null)
             {
                 return NotFound();
             }
-            game.Platforms.Clear();
             _repository.Games.Delete(game);
             await _repository.SaveChangesAsync();
 
