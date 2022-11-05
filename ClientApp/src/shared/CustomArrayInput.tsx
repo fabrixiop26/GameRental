@@ -29,8 +29,10 @@ import {
   UseReferenceArrayInputParams,
   useSupportCreateSuggestion,
 } from "react-admin";
-import { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
+import { Transform } from "stream";
+import { Platform } from "types";
 
 const PREFIX = "RaSelectArrayInput";
 
@@ -77,7 +79,6 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
   const {
     allChoices,
     isLoading,
-    selectedChoices,
     error: fetchError,
     source,
     resource,
@@ -100,13 +101,11 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
     isRequired,
     formState: { isSubmitted },
   } = useInput({
-    defaultValue: [],
     resource,
     source,
   });
 
   const { error, invalid, isTouched } = fieldState;
-
   const renderMenuItemOption = useCallback(
     (choice: any) => getChoiceText(choice),
     [getChoiceText]
@@ -148,6 +147,20 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
 
   const inputLabel = useRef(null);
 
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(
+    (allChoices || []).filter((p) =>
+      field.value.some((ap: any) => ap.platformId === p.platformId)
+    )
+  );
+
+  useEffect(() => {
+    setSelectedPlatforms(
+      (allChoices || []).filter((p) =>
+        field.value.some((ap: any) => ap.platformId === p.platformId)
+      )
+    );
+  }, [field.value, allChoices]);
+
   if (isLoading) {
     return (
       <Labeled
@@ -161,8 +174,6 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
       </Labeled>
     );
   }
-
-  console.log("Value", field.value);
 
   return (
     <StyledFormControl
@@ -183,7 +194,7 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
         labelId={`${label}-outlined-label`}
         multiple
         error={!!fetchError || ((isTouched || isSubmitted) && invalid)}
-        renderValue={(selected: any[]) => {
+        renderValue={(selectedIds: any[]) => {
           /* return (
             <div className={SelectArrayInputClasses.chips}>
               {selected
@@ -205,10 +216,10 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
           ); */
           return (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-              {selected.map((item) => (
+              {selectedIds.map((item) => (
                 <Chip
                   key={getChoiceValue(item)}
-                  label={renderMenuItemOption(item)}
+                  label={getChoiceText(item)}
                   className={SelectArrayInputClasses.chip}
                   size="small"
                 />
@@ -219,6 +230,7 @@ export const CustomSelectInput = (props: CustomSelectInputProps) => {
         data-testid="selectArray"
         size="small"
         {...field}
+        value={selectedPlatforms}
         onChange={handleMultipleChange}
       >
         {allChoices.map(renderMenuItem)}

@@ -52,7 +52,6 @@ export const RentList = () => {
           options={{ style: "currency", currency: "USD" }}
         />
         <ShowButton />
-        <EditButton />
       </Datagrid>
     </List>
   );
