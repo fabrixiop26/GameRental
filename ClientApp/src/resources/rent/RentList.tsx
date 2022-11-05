@@ -14,12 +14,7 @@ import {
 import { Card, CardContent } from "@mui/material";
 import MailIcon from "@mui/icons-material/MailOutline";
 import { QuickFilter } from "shared";
-
-const getToday = () => {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  return date;
-};
+import { getToday } from "utils";
 
 const rentFilters = [
   <QuickFilter

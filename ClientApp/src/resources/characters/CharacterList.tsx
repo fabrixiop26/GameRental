@@ -5,6 +5,7 @@ import {
   EditButton,
   NumberField,
   DeleteButton,
+  DeleteWithConfirmButton,
 } from "react-admin";
 
 export const CharacterList = () => {
@@ -17,6 +18,7 @@ export const CharacterList = () => {
         <NumberField source="characterId" />
         <TextField source="name" label="Name" />
         <EditButton />
+        <DeleteWithConfirmButton />
       </Datagrid>
     </List>
   );

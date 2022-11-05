@@ -22,6 +22,7 @@ import {
 import { Game, GameRecord, PlatformRecord } from "types";
 import { RecordSelectInput } from "shared";
 import { Stack } from "@mui/material";
+import { getToday, maxDate } from "utils";
 
 const GameEditActions = () => (
   <Stack direction="row" justifyContent="space-between" mx={2} my={1}>
@@ -51,7 +52,7 @@ export const GameEdit = () => {
           label="Release Date"
           source="releaseDate"
           defaultValue={new Date()}
-          validate={[required()]}
+          validate={[required(), maxDate(getToday())]}
         />
         <ReferenceArrayInput
           source="platformIds"

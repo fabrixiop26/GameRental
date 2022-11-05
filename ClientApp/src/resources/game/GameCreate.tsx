@@ -8,6 +8,7 @@ import {
   SimpleForm,
   TextInput,
 } from "react-admin";
+import { getToday, maxDate } from "utils";
 
 export const GameCreate = () => {
   return (
@@ -22,7 +23,7 @@ export const GameCreate = () => {
           label="Release Date"
           source="releaseDate"
           defaultValue={new Date()}
-          validate={[required()]}
+          validate={[required(), maxDate(getToday())]}
         />
         <ReferenceArrayInput
           source="platformIds"
