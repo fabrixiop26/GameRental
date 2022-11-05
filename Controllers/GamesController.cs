@@ -238,12 +238,12 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteGame(int id)
         {
-            var game = await _repository.Games.FindByCondition(g => g.GameId == id).FirstOrDefaultAsync();
+            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).FirstOrDefaultAsync();
             if (game == null)
             {
                 return NotFound();
             }
-
+            game.Platforms.Clear();
             _repository.Games.Delete(game);
             await _repository.SaveChangesAsync();
 
