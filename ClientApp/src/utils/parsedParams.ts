@@ -58,10 +58,20 @@ export const toListParams = (
     };
   }
   filterList.forEach(({ field, value }) => {
-    parsedParams = {
-      ...parsedParams,
-      [field]: value,
-    };
+    //handle array cases
+    if (Array.isArray(value)) {
+      value.forEach((v) => {
+        parsedParams = {
+          ...parsedParams,
+          [field]: v,
+        };
+      });
+    } else {
+      parsedParams = {
+        ...parsedParams,
+        [field]: value,
+      };
+    }
   });
   parsedParams = {
     ...parsedParams,

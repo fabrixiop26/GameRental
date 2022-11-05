@@ -53,11 +53,19 @@ export const GameEdit = () => {
           defaultValue={new Date()}
           validate={[required()]}
         />
-        <ReferenceArrayInput source="platforms" reference="platforms">
-          <RecordSelectInput optionText="name" optionValue="platformId" />
+        <ReferenceArrayInput
+          source="platformIds"
+          reference="platforms"
+          label="Platforms"
+        >
+          <SelectArrayInput optionText="name" optionValue="platformId" />
         </ReferenceArrayInput>
-        <ReferenceArrayInput source="characters" reference="characters">
-          <RecordSelectInput optionText="name" optionValue="characterId" />
+        <ReferenceArrayInput
+          source="characterIds"
+          reference="characters"
+          label="Characters"
+        >
+          <SelectArrayInput optionText="name" optionValue="characterId" />
         </ReferenceArrayInput>
       </SimpleForm>
     </Edit>

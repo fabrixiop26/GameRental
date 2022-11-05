@@ -64,7 +64,7 @@ export const platformProvider: DataProvider = {
   ): Promise<GetManyResult<any>> {
     let parsedParams = params;
     const isEdgeCase = params.ids.some(
-      (v) => typeof v !== "number" || typeof v !== "string"
+      (v) => typeof v !== "number" && typeof v !== "string"
     );
     if (isEdgeCase) {
       parsedParams = {

@@ -2,7 +2,9 @@ import {
   Create,
   DateInput,
   NumberInput,
+  ReferenceArrayInput,
   required,
+  SelectArrayInput,
   SimpleForm,
   TextInput,
 } from "react-admin";
@@ -22,6 +24,20 @@ export const GameCreate = () => {
           defaultValue={new Date()}
           validate={[required()]}
         />
+        <ReferenceArrayInput
+          source="platformIds"
+          reference="platforms"
+          label="Platforms"
+        >
+          <SelectArrayInput optionText="name" optionValue="platformId" />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput
+          source="characterIds"
+          reference="characters"
+          label="Characters"
+        >
+          <SelectArrayInput optionText="name" optionValue="platformId" />
+        </ReferenceArrayInput>
       </SimpleForm>
     </Create>
   );

@@ -43,11 +43,11 @@ export interface ResourceProvider<T extends RaRecord> {
 export interface Game {
   gameId: number;
   name: string;
-  characters: Character[];
   company: string;
   producer: string;
   director: string;
-  platforms: Platform[];
+  characterIds: number[];
+  platformIds: number[];
   releaseDate: Date;
   rentPrice: number;
 }

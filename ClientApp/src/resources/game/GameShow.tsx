@@ -53,16 +53,24 @@ export const GameShow = () => {
           source="rentPrice"
           options={{ style: "currency", currency: "USD" }}
         />
-        <ArrayField source="platforms">
+        <ReferenceArrayField
+          label="Platforms"
+          reference="platforms"
+          source="platformIds"
+        >
           <SingleFieldList>
-            <ChipField source="name" clickable={false}/>
+            <ChipField source="name" clickable={false} />
           </SingleFieldList>
-        </ArrayField>
-        <ArrayField source="characters">
+        </ReferenceArrayField>
+        <ReferenceArrayField
+          label="Characters"
+          reference="characters"
+          source="characterIds"
+        >
           <SingleFieldList>
-            <ChipField source="name" clickable={false}/>
+            <ChipField source="name" clickable={false} />
           </SingleFieldList>
-        </ArrayField>
+        </ReferenceArrayField>
       </SimpleShowLayout>
     </Show>
   );

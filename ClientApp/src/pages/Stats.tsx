@@ -120,6 +120,7 @@ const StatsPage = () => {
               </Stack>
               <Button label="Find" variant="contained" type="submit" />
             </form>
+            <br />
             {leastRentedGame && (
               <Link to={`/games/${leastRentedGame.gameId}/show`}>
                 <Typography>{leastRentedGame.name}</Typography>

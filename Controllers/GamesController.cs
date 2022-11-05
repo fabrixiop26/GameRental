@@ -13,6 +13,7 @@ using GameRental.DTOModels;
 using GameRental.Repository;
 using GameRental.Helpers;
 using NuGet.Protocol.Core.Types;
+using AutoFilterer.Extensions;
 
 namespace GameRental.Controllers
 {
@@ -139,12 +140,9 @@ namespace GameRental.Controllers
             }
             // track entity
             _repository.Games.Update(currentGame);
-            // update many-to-many relation ship
-            var platformIds = game.Platforms.Select(p => p.PlatformId);
-            currentGame.Platforms = await _repository.Platforms.FindByCondition(p => platformIds.Contains(p.PlatformId)).ToListAsync();
-
-            var characterIds = game.Characters.Select(p => p.CharacterId);
-            currentGame.Characters = await _repository.Characters.FindByCondition(c => characterIds.Contains(c.CharacterId)).ToListAsync();
+            // update many-to-many relation 
+            currentGame.Platforms = await _repository.Platforms.FindByCondition(p => game.PlatformIds.Contains(p.PlatformId)).ToListAsync();
+            currentGame.Characters = await _repository.Characters.FindByCondition(c => game.CharacterIds.Contains(c.CharacterId)).ToListAsync();
             // Update rest of flat properties
             currentGame = _mapper.Map(game, currentGame);
 
@@ -193,7 +191,7 @@ namespace GameRental.Controllers
         public async Task<IActionResult> EditGamePlatforms(int id, [FromBody] List<int> platformsId)
         {
             var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).FirstOrDefaultAsync();
-            if(game == null)
+            if (game == null)
             {
                 return NotFound();
             }
