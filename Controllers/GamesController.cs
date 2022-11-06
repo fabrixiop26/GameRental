@@ -49,15 +49,6 @@ namespace GameRental.Controllers
             return Ok(new PagedResponse<List<GameDTO>>(mappedResults, games.TotalCount));
         }
 
-        [HttpGet("ByCharacters")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<GameDTO>>> GetGamesByCharacters([FromQuery] List<int> platforms)
-        {
-            var games = await _repository.Games.FindByCondition(g => g.Platforms.Any(p => platforms.Contains(p.PlatformId))).Include(g => g.Platforms).ToListAsync();
-            var mappedResults = _mapper.Map<List<GameDTO>>(games);
-            return Ok(mappedResults);
-        }
-
         /// <summary>
         /// Return a Game by its id
         /// </summary>
@@ -75,7 +66,7 @@ namespace GameRental.Controllers
         public async Task<ActionResult<GameDTO>> GetGame(int id)
         {
 
-            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).Include(g => g.Characters).FirstOrDefaultAsync();
+            var game = await _repository.Games.GetByIdAsync(id);
 
             if (game == null)
             {
@@ -104,10 +95,7 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-            var game = await _repository.Games.FindByCondition(g => g.GameId == result.GameId)
-                .Include(g => g.Platforms)
-                .Include(g => g.Characters).FirstOrDefaultAsync();
-
+            var game = await _repository.Games.GetByIdAsync(result.GameId);
             return Ok(_mapper.Map<GameDTO>(game));
         }
 
@@ -131,9 +119,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutGame(int id, GameDTO game)
         {
-            var currentGame = await _repository.Games.FindByCondition(g => g.GameId == id)
-                .Include(g => g.Platforms)
-                .Include(g => g.Characters).FirstOrDefaultAsync();
+            var currentGame = await _repository.Games.GetByIdAsync(id);
             if (currentGame == null)
             {
                 return NotFound();
@@ -187,45 +173,6 @@ namespace GameRental.Controllers
             return CreatedAtAction("GetGame", new { id = game.GameId }, game);
         }
 
-        [HttpPost("{id}/EditPlaforms")]
-        public async Task<IActionResult> EditGamePlatforms(int id, [FromBody] List<int> platformsId)
-        {
-            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).FirstOrDefaultAsync();
-            if (game == null)
-            {
-                return NotFound();
-            }
-
-            var platforms = await _repository.Platforms.FindByCondition(p => platformsId.Contains(p.PlatformId)).ToListAsync();
-            //Remove previous platforms
-            game.Platforms.Clear();
-            // Set new platforms
-            game.Platforms = platforms;
-
-            await _repository.SaveChangesAsync();
-
-            return NoContent();
-        }
-        [HttpPost("{id}/EditCharacters")]
-        public async Task<IActionResult> EditGameCharacters(int id, [FromBody] List<int> charactersId)
-        {
-            var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Characters).FirstOrDefaultAsync();
-            if (game == null)
-            {
-                return NotFound();
-            }
-
-            var characters = await _repository.Characters.FindByCondition(c => charactersId.Contains(c.CharacterId)).ToListAsync();
-            //Remove previous characters
-            game.Characters.Clear();
-            // Set new characters
-            game.Characters = characters;
-
-            await _repository.SaveChangesAsync();
-
-            return NoContent();
-        }
-
         /// <summary>
         /// Deletes a Game by its id
         /// </summary>
@@ -255,7 +202,7 @@ namespace GameRental.Controllers
 
         private bool GameExists(int id)
         {
-            return _repository.Games.FindByCondition(g => g.GameId == id).FirstOrDefault() != null;
+            return _repository.Games.GetById(id) != null;
         }
     }
 }

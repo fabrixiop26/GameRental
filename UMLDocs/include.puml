@@ -1,0 +1,301 @@
+@startuml
+class CharactersController {
+    - <<readonly>> _mapper : IMapper
+    - <<readonly>> _repository : RepositoryService
+    + CharactersController(repository:RepositoryService, mapper:IMapper)
+    + <<async>> GetCharacters(_params:CharacterDTOFilter) : Task<ActionResult<IEnumerable<CharacterDTO>>>
+    + <<async>> GetCharacter(id:int) : Task<ActionResult<CharacterDTO>>
+    + <<async>> PutCharacter(id:int, character:CharacterDTO) : Task<IActionResult>
+    + <<async>> PostCharacter(character:CharacterDTO) : Task<ActionResult<CharacterDTO>>
+    + <<async>> DeleteCharacter(id:int) : Task<IActionResult>
+    - CharacterExists(id:int) : bool
+}
+ControllerBase <|-- CharactersController
+class ClientsController {
+    - <<readonly>> _repository : RepositoryService
+    - <<readonly>> _mapper : IMapper
+    + ClientsController(repository:RepositoryService, mapper:IMapper)
+    + <<async>> GetClients(_params:ClientDTOFilter) : Task<ActionResult<IEnumerable<ClientDTO>>>
+    + <<async>> GetClient(id:int) : Task<ActionResult<ClientDTO>>
+    + <<async>> GetRents(id:int) : Task<ActionResult<IEnumerable<RentDTO>>>
+    + <<async>> GetMostFrecuentClient() : Task<ActionResult<ClientDTO>>
+    + <<async>> GetAgeRanges() : Task<ActionResult>
+    + <<async>> PutClient(id:int, client:ClientDTO) : Task<IActionResult>
+    + <<async>> PostClient(client:ClientDTO) : Task<ActionResult<ClientDTO>>
+    + <<async>> DeleteClient(id:int) : Task<IActionResult>
+    - ClientExists(id:int) : bool
+}
+ControllerBase <|-- ClientsController
+class GamesController {
+    - <<readonly>> _repository : RepositoryService
+    - <<readonly>> _mapper : IMapper
+    + GamesController(repository:RepositoryService, mapper:IMapper)
+    + <<async>> GetGames(_params:GameDTOFilter) : Task<ActionResult<IEnumerable<GameDTO>>>
+    + <<async>> GetGame(id:int) : Task<ActionResult<GameDTO>>
+    + <<async>> GetMostRentedGame() : Task<ActionResult<GameDTO>>
+    + <<async>> PutGame(id:int, game:GameDTO) : Task<IActionResult>
+    + <<async>> PostGame(game:GameDTO) : Task<ActionResult<GameDTO>>
+    + <<async>> DeleteGame(id:int) : Task<IActionResult>
+    - GameExists(id:int) : bool
+}
+ControllerBase <|-- GamesController
+class PlatformsController {
+    - <<readonly>> _repository : RepositoryService
+    - <<readonly>> _mapper : IMapper
+    + PlatformsController(repository:RepositoryService, mapper:IMapper)
+    + <<async>> GetPlatforms(_params:PlatformDTOFilter) : Task<ActionResult<IEnumerable<PlatformDTO>>>
+    + <<async>> GetPlatform(id:int) : Task<ActionResult<PlatformDTO>>
+    + <<async>> PutPlatform(id:int, platform:PlatformDTO) : Task<IActionResult>
+    + <<async>> PostPlatform(platform:PlatformDTO) : Task<ActionResult<PlatformDTO>>
+    + <<async>> DeletePlatform(id:int) : Task<IActionResult>
+    - PlatformExists(id:int) : bool
+}
+ControllerBase <|-- PlatformsController
+class RentsController {
+    - <<readonly>> _repository : RepositoryService
+    - <<readonly>> _mapper : IMapper
+    + RentsController(repository:RepositoryService, mapper:IMapper)
+    + <<async>> GetRents(_params:RentDTOFilter) : Task<ActionResult<IEnumerable<RentDTO>>>
+    + <<async>> GetRent(id:int) : Task<ActionResult<RentDTO>>
+    + <<async>> GetLeastSoldGame(minAge:int, maxAge:int) : Task<ActionResult<Game>>
+    + <<async>> PutRent(id:int, rent:RentDTO) : Task<IActionResult>
+    + <<async>> PostRent(rent:RentDTO) : Task<ActionResult<RentDTO>>
+    + <<async>> DeleteRent(id:int) : Task<IActionResult>
+    - RentExists(id:int) : bool
+}
+ControllerBase <|-- RentsController
+class AppDbContext <<partial>> {
+    + AppDbContext()
+    - <<readonly>> _connectionString : string = ""
+    + AppDbContext(options:DbContextOptions<AppDbContext>, config:IConfiguration)
+    + <<virtual>> Characters : DbSet<Character> <<get>> <<set>>
+    + <<virtual>> Clients : DbSet<Client> <<get>> <<set>>
+    + <<virtual>> Games : DbSet<Game> <<get>> <<set>>
+    + <<virtual>> Platforms : DbSet<Platform> <<get>> <<set>>
+    + <<virtual>> Rents : DbSet<Rent> <<get>> <<set>>
+    # <<override>> OnConfiguring(optionsBuilder:DbContextOptionsBuilder) : void
+    # <<override>> OnModelCreating(modelBuilder:ModelBuilder) : void
+    <<partial>> OnModelCreatingPartial(modelBuilder:ModelBuilder) : void
+}
+DbContext <|-- AppDbContext
+class CharacterDTO {
+    + CharacterId : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+}
+class ClientDTO {
+    + ClientId : int <<get>> <<set>>
+    + Nit : int <<get>> <<set>>
+    + FirstName : string <<get>> <<set>>
+    + LastName : string <<get>> <<set>>
+    + Address : string? <<get>> <<set>>
+    + Dob : DateTime <<get>> <<set>>
+}
+class GameDTO {
+    + GameId : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + Company : string <<get>> <<set>>
+    + Director : string <<get>> <<set>>
+    + Producer : string <<get>> <<set>>
+    + ReleaseDate : DateTime <<get>> <<set>>
+    + RentPrice : decimal <<get>> <<set>>
+    + CharacterIds : List<int> <<get>> <<set>>
+    + PlatformIds : List<int> <<get>> <<set>>
+}
+class PlatformDTO {
+    + PlatformId : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+}
+class RentDTO {
+    + RentId : int <<get>> <<set>>
+    + RentedDate : DateTime <<get>> <<set>>
+    + ReturnDate : DateTime <<get>> <<set>>
+    + RentedPrice : decimal <<get>> <<set>>
+    + ClientId : int <<get>> <<set>>
+    + GameId : int <<get>> <<set>>
+}
+class "PagedList`1"<T> {
+    + CurrentPage : int <<get>>
+    + TotalPages : int <<get>>
+    + PageSize : int <<get>>
+    + TotalCount : int <<get>>
+    + HasPreviousPage : bool <<get>>
+    + HasNextPage : bool <<get>>
+    + PagedList(items:List<T>, count:int, pageNumber:int, pageSize:int)
+    + {static} <<async>> ToPagedList(source:IQueryable<T>, pageNumber:int, pageSize:int) : Task<PagedList<T>>
+}
+"List`1" "<T>" <|-- "PagedList`1"
+class "PagedResponse`1"<T> {
+    + Data : T <<get>>
+    + Count : int <<get>>
+    + PagedResponse(_data:T, count:int)
+}
+class Character <<partial>> {
+    + Character()
+    + CharacterId : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + <<virtual>> Games : ICollection<Game> <<get>> <<set>>
+}
+class Client <<partial>> {
+    + Client()
+    + ClientId : int <<get>> <<set>>
+    + Nit : int <<get>> <<set>>
+    + FirstName : string <<get>> <<set>>
+    + LastName : string <<get>> <<set>>
+    + Address : string? <<get>> <<set>>
+    + Dob : DateTime <<get>> <<set>>
+    + <<virtual>> Rents : ICollection<Rent> <<get>> <<set>>
+}
+class Game <<partial>> {
+    + Game()
+    + GameId : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + Company : string <<get>> <<set>>
+    + Director : string <<get>> <<set>>
+    + Producer : string <<get>> <<set>>
+    + ReleaseDate : DateTime <<get>> <<set>>
+    + RentPrice : decimal <<get>> <<set>>
+    + <<virtual>> Rents : ICollection<Rent> <<get>> <<set>>
+    + <<virtual>> Characters : ICollection<Character> <<get>> <<set>>
+    + <<virtual>> Platforms : ICollection<Platform> <<get>> <<set>>
+}
+class Platform <<partial>> {
+    + Platform()
+    + PlatformId : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + <<virtual>> Games : ICollection<Game> <<get>> <<set>>
+}
+class Rent <<partial>> {
+    + RentId : int <<get>> <<set>>
+    + RentedDate : DateTime <<get>> <<set>>
+    + ReturnDate : DateTime <<get>> <<set>>
+    + RentedPrice : decimal <<get>> <<set>>
+    + ClientId : int <<get>> <<set>>
+    + GameId : int <<get>> <<set>>
+    + <<virtual>> Client : Client <<get>> <<set>>
+    + <<virtual>> Game : Game <<get>> <<set>>
+}
+class CharacterProfile {
+    + CharacterProfile()
+}
+Profile <|-- CharacterProfile
+class ClientProfile {
+    + ClientProfile()
+}
+Profile <|-- ClientProfile
+class GameProfile {
+    + GameProfile()
+}
+Profile <|-- GameProfile
+class PlatformProfile {
+    + PlatformProfile()
+}
+Profile <|-- PlatformProfile
+class RentProfile {
+    + RentProfile()
+}
+Profile <|-- RentProfile
+class CharacterRepository {
+    + CharacterRepository(appDbContext:AppDbContext)
+    + GetAllCharacters(_params:CharacterDTOFilter) : Task<PagedList<Character>>
+    + GetByIdAsync(id:int) : ValueTask<Character?>
+    + GetById(id:int) : Character?
+}
+"RepositoryBase`1" "<Character>" <|-- CharacterRepository
+ICharacterRepository <|-- CharacterRepository
+class ClientRepository {
+    + ClientRepository(_dbContext:AppDbContext)
+    + GetAllClients(_params:ClientDTOFilter) : Task<PagedList<Client>>
+    + GetById(id:int) : Client?
+    + GetByIdAsync(id:int) : ValueTask<Client?>
+}
+"RepositoryBase`1" "<Client>" <|-- ClientRepository
+IClientRepository <|-- ClientRepository
+class GameRepository {
+    + GameRepository(_dbContext:AppDbContext)
+    + GetAllGames(_params:GameDTOFilter) : Task<PagedList<Game>>
+    + GetById(id:int) : Game?
+    + GetByIdAsync(id:int) : Task<Game?>
+}
+"RepositoryBase`1" "<Game>" <|-- GameRepository
+IGameRepository <|-- GameRepository
+interface ICharacterRepository {
+    GetAllCharacters(_params:CharacterDTOFilter) : Task<PagedList<Character>>
+    GetByIdAsync(id:int) : ValueTask<Character?>
+    GetById(id:int) : Character?
+}
+"IRepository`1" "<Character>" <|-- ICharacterRepository
+interface IClientRepository {
+    GetAllClients(_params:ClientDTOFilter) : Task<PagedList<Client>>
+    GetByIdAsync(id:int) : ValueTask<Client?>
+    GetById(id:int) : Client?
+}
+"IRepository`1" "<Client>" <|-- IClientRepository
+interface IGameRepository {
+    GetAllGames(_params:GameDTOFilter) : Task<PagedList<Game>>
+    GetByIdAsync(id:int) : Task<Game?>
+    GetById(id:int) : Game?
+}
+"IRepository`1" "<Game>" <|-- IGameRepository
+interface IPlatformRepository {
+    GetAllPlataforms(_params:PlatformDTOFilter) : Task<PagedList<Platform>>
+    GetByIdAsync(id:int) : ValueTask<Platform?>
+    GetById(id:int) : Platform?
+}
+"IRepository`1" "<Platform>" <|-- IPlatformRepository
+interface IRentRepository {
+    GetAllRents(_params:RentDTOFilter) : Task<PagedList<Rent>>
+    GetLeastRented(minAge:int, maxAge:int) : Task<RentedGames?>
+    GetByIdAsync(id:int) : ValueTask<Rent?>
+    GetById(id:int) : Rent?
+}
+"IRepository`1" "<Rent>" <|-- IRentRepository
+interface "IRepository`1"<T> {
+    GetAll() : IQueryable<T>
+    FindByCondition(expression:Expression<Func<T,bool>>) : IQueryable<T>
+    Create(entity:T) : void
+    Update(entity:T) : void
+    Delete(entity:T) : void
+}
+class PlatformRepository {
+    + PlatformRepository(appDbContext:AppDbContext)
+    + GetAllPlataforms(_params:PlatformDTOFilter) : Task<PagedList<Platform>>
+    + GetById(id:int) : Platform?
+    + GetByIdAsync(id:int) : ValueTask<Platform?>
+}
+"RepositoryBase`1" "<Platform>" <|-- PlatformRepository
+IPlatformRepository <|-- PlatformRepository
+class RentedGames {
+    + GameId : int <<get>> <<set>>
+    + Quantity : int <<get>> <<set>>
+}
+class RentRepository {
+    + RentRepository(appDbContext:AppDbContext)
+    + GetAllRents(_params:RentDTOFilter) : Task<PagedList<Rent>>
+    + GetById(id:int) : Rent?
+    + GetByIdAsync(id:int) : ValueTask<Rent?>
+    + GetLeastRented(minAge:int, maxAge:int) : Task<RentedGames?>
+}
+"RepositoryBase`1" "<Rent>" <|-- RentRepository
+IRentRepository <|-- RentRepository
+abstract class "RepositoryBase`1"<T> {
+    # DbContext : AppDbContext <<get>> <<set>>
+    + RepositoryBase(_dbContext:AppDbContext)
+    + GetAll() : IQueryable<T>
+    + FindByCondition(expression:Expression<Func<T, bool>>) : IQueryable<T>
+    + Create(entity:T) : void
+    + Update(entity:T) : void
+    + Delete(entity:T) : void
+}
+"IRepository`1" "<T>" <|-- "RepositoryBase`1"
+class RepositoryService {
+    - _dbContext : AppDbContext
+    + Characters : ICharacterRepository <<get>>
+    + Platforms : IPlatformRepository <<get>>
+    + Rents : IRentRepository <<get>>
+    + Clients : IClientRepository <<get>>
+    + Games : IGameRepository <<get>>
+    + RepositoryService(dbContext:AppDbContext)
+    + <<async>> SaveChangesAsync() : Task
+    + SaveChanges() : void
+}
+@enduml

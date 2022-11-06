@@ -61,7 +61,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RentDTO>> GetRent(int id)
         {
-            var rent = await _repository.Rents.FindByCondition(r => r.RentId == id).FirstOrDefaultAsync();
+            var rent = await _repository.Rents.GetByIdAsync(id);
 
             if (rent == null)
             {
@@ -70,8 +70,17 @@ namespace GameRental.Controllers
 
             return Ok(_mapper.Map<RentDTO>(rent));
         }
-
+        /// <summary>
+        /// Return a the least rented game based on an age range
+        /// </summary>
+        /// <param name="minAge">min age in the range</param>
+        /// <param name="maxAge">max age in the range</param>
+        /// <returns>a Rent</returns>
+        /// <response code="200">Returns the Rent</response>
+        /// <response code="404">If the Rent was not found</response>
         [HttpGet("LeastRentedGameByAge")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<Game>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
         {
             var res = await _repository.Rents.GetLeastRented(minAge, maxAge);
@@ -80,7 +89,7 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-            var game = await _repository.Games.FindByCondition(g => g.GameId == res.GameId).FirstOrDefaultAsync();
+            var game = await _repository.Games.GetByIdAsync(res.GameId);
             return Ok(game);
         }
 
@@ -169,7 +178,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteRent(int id)
         {
-            var rent = await _repository.Rents.FindByCondition(r => r.RentId == id).FirstOrDefaultAsync();
+            var rent = await _repository.Rents.GetByIdAsync(id);
             if (rent == null)
             {
                 return NotFound();
@@ -183,7 +192,7 @@ namespace GameRental.Controllers
 
         private bool RentExists(int id)
         {
-            return _repository.Rents.FindByCondition(r => r.RentId == id).FirstOrDefault() != null;
+            return _repository.Rents.GetById(id) != null;
         }
     }
 }

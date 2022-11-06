@@ -29,5 +29,14 @@ namespace GameRental.Repository
             return PagedList<Game>.ToPagedList(query.ApplyFilterWithoutPagination(_params).Include(g => g.Platforms).Include(g => g.Characters), _params.Page, _params.PerPage);
         }
 
+        public Game? GetById(int id)
+        {
+            return DbContext.Games.Find(id);
+        }
+
+        public Task<Game?> GetByIdAsync(int id)
+        { 
+            return DbContext.Games.Include(g => g.Platforms).Include(g => g.Characters).Where(g => g.GameId == id).FirstOrDefaultAsync();
+        }
     }
 }

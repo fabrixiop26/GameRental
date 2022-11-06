@@ -65,7 +65,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PlatformDTO>> GetPlatform(int id)
         {
-            var platform = await _repository.Platforms.FindByCondition(p => p.PlatformId == id).FirstOrDefaultAsync();
+            var platform = await _repository.Platforms.GetByIdAsync(id);
 
             if (platform == null)
             {
@@ -160,7 +160,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeletePlatform(int id)
         {
-            var platform = await _repository.Platforms.FindByCondition(p => p.PlatformId == id).FirstOrDefaultAsync();
+            var platform = await _repository.Platforms.GetByIdAsync(id);
             if (platform == null)
             {
                 return NotFound();
@@ -174,7 +174,7 @@ namespace GameRental.Controllers
 
         private bool PlatformExists(int id)
         {
-            return _repository.Platforms.FindByCondition(e => e.PlatformId == id).FirstOrDefault() != null;
+            return _repository.Platforms.GetById(id) != null;
         }
     }
 }

@@ -8,5 +8,7 @@ namespace GameRental.Repository
     {
         Task<PagedList<Rent>> GetAllRents(RentDTOFilter _params);
         Task<RentedGames?> GetLeastRented(int minAge, int maxAge);
+        ValueTask<Rent?> GetByIdAsync(int id);
+        Rent? GetById(int id);
     }
 }

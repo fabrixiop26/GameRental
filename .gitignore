@@ -230,3 +230,8 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# PlantUML Generated
+out
+UMLDocs/*
+!UMLDocs/include.puml
