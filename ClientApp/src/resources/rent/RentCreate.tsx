@@ -9,6 +9,7 @@ import {
   useChoicesContext,
 } from "react-admin";
 import { Game, Rent } from "types";
+import { getToday, minDate } from "utils";
 interface GameSelectorProps {
   onGameSelected(g: Game): void;
 }
@@ -62,7 +63,7 @@ export const RentCreate = () => {
           label="Return Date"
           source="returnDate"
           defaultValue={new Date()}
-          validate={[required()]}
+          validate={[required(), minDate(getToday(),"Previous date is not valid")]}
         />
       </SimpleForm>
     </Create>
