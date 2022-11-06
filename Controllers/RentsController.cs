@@ -71,6 +71,19 @@ namespace GameRental.Controllers
             return Ok(_mapper.Map<RentDTO>(rent));
         }
 
+        [HttpGet("LeastRentedGameByAge")]
+        public async Task<ActionResult<Game>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
+        {
+            var res = await _repository.Rents.GetLeastRented(minAge, maxAge);
+
+            if (res == null)
+            {
+                return NotFound();
+            }
+            var game = await _repository.Games.FindByCondition(g => g.GameId == res.GameId).FirstOrDefaultAsync();
+            return Ok(game);
+        }
+
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /// <summary>
         /// Updates a Rent by its id

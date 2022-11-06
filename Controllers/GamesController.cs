@@ -13,6 +13,7 @@ using GameRental.DTOModels;
 using GameRental.Repository;
 using GameRental.Helpers;
 using NuGet.Protocol.Core.Types;
+using AutoFilterer.Extensions;
 
 namespace GameRental.Controllers
 {
@@ -80,7 +81,7 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-            return Ok(new OkResponse<GameDTO>(_mapper.Map<GameDTO>(game)));
+            return Ok(_mapper.Map<GameDTO>(game));
         }
         /// <summary>
         /// Return the most rented game
@@ -107,7 +108,7 @@ namespace GameRental.Controllers
                 .Include(g => g.Platforms)
                 .Include(g => g.Characters).FirstOrDefaultAsync();
 
-            return Ok(new OkResponse<GameDTO>(_mapper.Map<GameDTO>(game)));
+            return Ok(_mapper.Map<GameDTO>(game));
         }
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -130,13 +131,20 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PutGame(int id, GameDTO game)
         {
-            var newGame = _mapper.Map<Game>(game);
-            if (id != newGame.GameId)
+            var currentGame = await _repository.Games.FindByCondition(g => g.GameId == id)
+                .Include(g => g.Platforms)
+                .Include(g => g.Characters).FirstOrDefaultAsync();
+            if (currentGame == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-
-            _repository.Games.Update(newGame);
+            // track entity
+            _repository.Games.Update(currentGame);
+            // update many-to-many relation 
+            currentGame.Platforms = await _repository.Platforms.FindByCondition(p => game.PlatformIds.Contains(p.PlatformId)).ToListAsync();
+            currentGame.Characters = await _repository.Characters.FindByCondition(c => game.CharacterIds.Contains(c.CharacterId)).ToListAsync();
+            // Update rest of flat properties
+            currentGame = _mapper.Map(game, currentGame);
 
             try
             {
@@ -183,18 +191,16 @@ namespace GameRental.Controllers
         public async Task<IActionResult> EditGamePlatforms(int id, [FromBody] List<int> platformsId)
         {
             var game = await _repository.Games.FindByCondition(g => g.GameId == id).Include(g => g.Platforms).FirstOrDefaultAsync();
-            if(game == null)
+            if (game == null)
             {
                 return NotFound();
             }
 
             var platforms = await _repository.Platforms.FindByCondition(p => platformsId.Contains(p.PlatformId)).ToListAsync();
-            // Set the platforms to the ones here to allow editing/adding
-            var addedPlatforms = _mapper.Map<List<Platform>>(platforms);
             //Remove previous platforms
             game.Platforms.Clear();
             // Set new platforms
-            game.Platforms = addedPlatforms;
+            game.Platforms = platforms;
 
             await _repository.SaveChangesAsync();
 
@@ -210,12 +216,10 @@ namespace GameRental.Controllers
             }
 
             var characters = await _repository.Characters.FindByCondition(c => charactersId.Contains(c.CharacterId)).ToListAsync();
-            // Set the platforms to the ones here to allow editing/adding
-            var addedCharacters = _mapper.Map<List<Character>>(characters);
             //Remove previous characters
             game.Characters.Clear();
             // Set new characters
-            game.Characters = addedCharacters;
+            game.Characters = characters;
 
             await _repository.SaveChangesAsync();
 
@@ -243,7 +247,6 @@ namespace GameRental.Controllers
             {
                 return NotFound();
             }
-
             _repository.Games.Delete(game);
             await _repository.SaveChangesAsync();
 

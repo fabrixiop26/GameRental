@@ -4,6 +4,7 @@ using GameRental.DTOModels;
 using GameRental.Helpers;
 using GameRental.Models;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 
 namespace GameRental.Repository
 {
@@ -15,7 +16,18 @@ namespace GameRental.Repository
 
         public Task<PagedList<Game>> GetAllGames(GameDTOFilter _params)
         {
-            return PagedList<Game>.ToPagedList(GetAll().ApplyFilterWithoutPagination(_params).Include(g => g.Platforms).Include(g => g.Characters), _params.Page, _params.PerPage);
+            var query = GetAll();
+            if (_params.PlatformIds != null)
+            {
+                query = query.Where(g => g.Platforms.Any(gp => _params.PlatformIds.Contains(gp.PlatformId)));
+            }
+            if (_params.CharacterIds != null)
+            {
+                query = query.Where(g => g.Characters.Any(gc => _params.CharacterIds.Contains(gc.CharacterId)));
+            }
+
+            return PagedList<Game>.ToPagedList(query.ApplyFilterWithoutPagination(_params).Include(g => g.Platforms).Include(g => g.Characters), _params.Page, _params.PerPage);
         }
+
     }
 }

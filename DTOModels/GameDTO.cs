@@ -28,7 +28,7 @@ namespace GameRental.DTOModels
         public string Producer { get; set; } = null!;
         public DateTime ReleaseDate { get; set; }
         public decimal RentPrice { get; set; }
-        public List<CharacterDTO> Characters { get; set; } = new List<CharacterDTO>();
-        public List<PlatformDTO> Platforms { get; set; } = new List<PlatformDTO>();
+        public List<int> CharacterIds { get; set; } = new List<int>();
+        public List<int> PlatformIds { get; set; } = new List<int>();
     }
 }

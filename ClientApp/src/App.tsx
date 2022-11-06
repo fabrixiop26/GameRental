@@ -1,36 +1,33 @@
-import React, { useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Admin, CustomRoutes, Resource } from "react-admin";
+import GameResourceProps from "resources/game";
+import RentResourceProps from "resources/rent";
+import ClientResourceProps from "resources/client";
+import PlatformResourceProps from "resources/platforms";
+import CharacterResourceProps from "resources/characters";
+import { dataProvider } from "services/dataProvider";
+import StatsPage from "pages/Stats";
+import { Route } from "react-router-dom";
+import CustomLayout from "layout";
 
 function App() {
-
-    useEffect(() => {
-        const getData = async () => {
-            const response = await fetch("/api/characters");
-            const data = await response.json();
-            console.log(data);
-        }
-        getData();
-    }, []);
-
-    return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
-    );
+  return (
+    <div className="App">
+      <Admin
+        dataProvider={dataProvider}
+        title="GameRental - Dashboard"
+        layout={CustomLayout}
+      >
+        <Resource {...GameResourceProps} />
+        <Resource {...RentResourceProps} />
+        <Resource {...ClientResourceProps} />
+        <Resource {...PlatformResourceProps} />
+        <Resource {...CharacterResourceProps} />
+        <CustomRoutes>
+          <Route path="/stats" element={<StatsPage />} />
+        </CustomRoutes>
+      </Admin>
+    </div>
+  );
 }
 
 export default App;
