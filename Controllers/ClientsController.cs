@@ -73,19 +73,6 @@ namespace GameRental.Controllers
             return Ok(_mapper.Map<ClientDTO>(client));
         }
         /// <summary>
-        /// Get the rents from a client
-        /// </summary>
-        /// <param name="id">Id of the client</param>
-        /// <returns>A list of rents</returns>
-        /// <response code="200">Returns the list of game rented by this client</response>
-        [HttpGet("{id}/rentals")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents(int id)
-        {
-            var rents = await _repository.Rents.FindByCondition(r => r.ClientId == id).ToListAsync();
-            return Ok(_mapper.Map<List<RentDTO>>(rents));
-        }
-        /// <summary>
         /// Get the most frecuent client
         /// </summary>
         /// <returns>The client with the most rents</returns>
