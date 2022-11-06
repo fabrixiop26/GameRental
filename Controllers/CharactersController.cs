@@ -65,7 +65,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CharacterDTO>> GetCharacter(int id)
         {
-            var character = await _repository.Characters.GetCharacterById(id);
+            var character = await _repository.Characters.GetByIdAsync(id);
 
             if (character == null)
             {

@@ -17,7 +17,6 @@ class ClientsController {
     + ClientsController(repository:RepositoryService, mapper:IMapper)
     + <<async>> GetClients(_params:ClientDTOFilter) : Task<ActionResult<IEnumerable<ClientDTO>>>
     + <<async>> GetClient(id:int) : Task<ActionResult<ClientDTO>>
-    + <<async>> GetRents(id:int) : Task<ActionResult<IEnumerable<RentDTO>>>
     + <<async>> GetMostFrecuentClient() : Task<ActionResult<ClientDTO>>
     + <<async>> GetAgeRanges() : Task<ActionResult>
     + <<async>> PutClient(id:int, client:ClientDTO) : Task<IActionResult>
@@ -64,6 +63,14 @@ class RentsController {
     - RentExists(id:int) : bool
 }
 ControllerBase <|-- RentsController
+class ServiceController {
+    - <<readonly>> _mapper : IMapper
+    - <<readonly>> _repository : RepositoryService
+    + ServiceController(repository:RepositoryService, mapper:IMapper)
+    + <<async>> GetBalance(id:int, rentIds:List<int>) : Task<ActionResult<decimal>>
+    + <<async>> GetRentsInfo(id:int, rentIds:List<int>, filter:RentDTOFilter) : Task<ActionResult>
+}
+ControllerBase <|-- ServiceController
 class AppDbContext <<partial>> {
     + AppDbContext()
     - <<readonly>> _connectionString : string = ""
