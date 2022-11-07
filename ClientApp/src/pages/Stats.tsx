@@ -129,11 +129,11 @@ const StatsPage = () => {
               <Button label="Find" variant="contained" type="submit" />
             </form>
             <br />
-            {leastRentedGame && (
+            {leastRentedGame ? (
               <Link to={`/games/${leastRentedGame.gameId}/show`}>
                 <Typography>{leastRentedGame.name}</Typography>
               </Link>
-            )}
+            ) : "No Game Found"}
           </AccordionDetails>
         </Accordion>
       </CardContent>

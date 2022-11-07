@@ -49,8 +49,9 @@ export const RentCreate = () => {
           source="clientId"
           reference="clients"
           validate={[required()]}
+          isRequired
         >
-          <SelectInput label="Client NIT" optionText="nit" />
+          <SelectInput label="Client NIT" optionText="nit" optionValue="clientId" validate={required()}/>
         </ReferenceInput>
         <DateInput
           label="Rented Date"
