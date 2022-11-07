@@ -1,18 +1,10 @@
 import {
   List,
   Datagrid,
-  TextField,
   DateField,
   ShowButton,
-  EditButton,
   NumberField,
-  ReferenceField,
-  ReferenceOneField,
-  FilterList,
-  FilterListItem,
 } from "react-admin";
-import { Card, CardContent } from "@mui/material";
-import MailIcon from "@mui/icons-material/MailOutline";
 import { QuickFilter } from "shared";
 import { getToday } from "utils";
 
