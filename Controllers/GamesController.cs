@@ -168,6 +168,11 @@ namespace GameRental.Controllers
         {
             var newGame = _mapper.Map<Game>(game);
             _repository.Games.Create(newGame);
+
+            // update many-to-many relation 
+            newGame.Platforms = await _repository.Platforms.FindByCondition(p => game.PlatformIds.Contains(p.PlatformId)).ToListAsync();
+            newGame.Characters = await _repository.Characters.FindByCondition(c => game.CharacterIds.Contains(c.CharacterId)).ToListAsync();
+
             await _repository.SaveChangesAsync();
             game.GameId = newGame.GameId;
             return CreatedAtAction("GetGame", new { id = game.GameId }, game);
