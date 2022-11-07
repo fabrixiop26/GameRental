@@ -81,7 +81,7 @@ namespace GameRental.Controllers
         [HttpGet("LeastRentedGameByAge")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<Game>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
+        public async Task<ActionResult<GameDTO>> GetLeastSoldGame([FromQuery] int minAge, [FromQuery] int maxAge)
         {
             var res = await _repository.Rents.GetLeastRented(minAge, maxAge);
 
