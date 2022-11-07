@@ -37,7 +37,7 @@ export const GameCreate = () => {
           reference="characters"
           label="Characters"
         >
-          <SelectArrayInput optionText="name" optionValue="platformId" />
+          <SelectArrayInput optionText="name" optionValue="characterId" />
         </ReferenceArrayInput>
       </SimpleForm>
     </Create>
