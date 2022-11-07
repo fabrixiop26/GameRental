@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using GameRental.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
-using GameRental.Helpers;
 
 namespace GameRental.DBContext
 {
     public partial class AppDbContext : DbContext
     {
+        private readonly string _connectionString = "";
         public AppDbContext()
         {
         }
-        private readonly string _connectionString = "";
         // inject configuration to avoid using hardcoded values in OnConfiguring
         public AppDbContext(DbContextOptions<AppDbContext> options, IConfiguration config)
-        : base(options)
+            : base(options)
         {
             _connectionString = config.GetConnectionString("DbConnectionString");
         }
@@ -44,8 +41,8 @@ namespace GameRental.DBContext
                     .WithMany(p => p.Games)
                     .UsingEntity<Dictionary<string, object>>(
                         "GameCharacter",
-                        l => l.HasOne<Character>().WithMany().HasForeignKey("CharacterId").OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Game_Character_Character"),
-                        r => r.HasOne<Game>().WithMany().HasForeignKey("GameId").OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Game_Character_Game"),
+                        l => l.HasOne<Character>().WithMany().HasForeignKey("CharacterId").HasConstraintName("FK_Game_Character_Character"),
+                        r => r.HasOne<Game>().WithMany().HasForeignKey("GameId").HasConstraintName("FK_Game_Character_Game"),
                         j =>
                         {
                             j.HasKey("GameId", "CharacterId");
@@ -61,8 +58,8 @@ namespace GameRental.DBContext
                     .WithMany(p => p.Games)
                     .UsingEntity<Dictionary<string, object>>(
                         "GamePlatform",
-                        l => l.HasOne<Platform>().WithMany().HasForeignKey("PlatformId").OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Game_Platform_Platform"),
-                        r => r.HasOne<Game>().WithMany().HasForeignKey("GameId").OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Game_Platform_Game"),
+                        l => l.HasOne<Platform>().WithMany().HasForeignKey("PlatformId").HasConstraintName("FK_Game_Platform_Platform"),
+                        r => r.HasOne<Game>().WithMany().HasForeignKey("GameId").HasConstraintName("FK_Game_Platform_Game"),
                         j =>
                         {
                             j.HasKey("GameId", "PlatformId");
