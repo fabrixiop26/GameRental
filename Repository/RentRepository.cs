@@ -24,6 +24,16 @@ namespace GameRental.Repository
             return PagedList<Rent>.ToPagedList(GetAll().ApplyFilterWithoutPagination(_params), _params.Page, _params.PerPage);
         }
 
+        public Rent? GetById(int id)
+        {
+            return DbContext.Rents.Find(id);
+        }
+
+        public ValueTask<Rent?> GetByIdAsync(int id)
+        {
+            return DbContext.Rents.FindAsync(id);
+        }
+
         public Task<RentedGames?> GetLeastRented(int minAge, int maxAge)
         {
             return GetAll().Join(DbContext.Clients, r => r.ClientId, c => c.ClientId, (r, c) => new

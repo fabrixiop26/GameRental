@@ -1,7 +1,7 @@
 export const maxDate =
   (maxValue: Date, message = "Max Date exceeded") =>
-  (value: Date) => {
-    if (value <= maxValue) {
+  (value: string) => {
+    if (new Date(value) <= maxValue) {
       return undefined;
     }
     return message;
@@ -9,8 +9,8 @@ export const maxDate =
 
 export const minDate =
   (minValue: Date, message = "Max Date exceeded") =>
-  (value: Date) => {
-    if (value >= minValue) {
+  (value: string) => {
+    if (new Date(value) >= minValue) {
       return undefined;
     }
     return message;

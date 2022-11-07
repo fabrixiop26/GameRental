@@ -65,7 +65,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CharacterDTO>> GetCharacter(int id)
         {
-            var character = await _repository.Characters.FindByCondition(c => c.CharacterId == id).FirstOrDefaultAsync();
+            var character = await _repository.Characters.GetByIdAsync(id);
 
             if (character == null)
             {
@@ -160,7 +160,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteCharacter(int id)
         {
-            var character = await _repository.Characters.FindByCondition(c => c.CharacterId == id).FirstOrDefaultAsync();
+            var character = await _repository.Characters.GetByIdAsync(id);
             if (character == null)
             {
                 return NotFound();
@@ -174,7 +174,7 @@ namespace GameRental.Controllers
 
         private bool CharacterExists(int id)
         {
-            return _repository.Characters.FindByCondition(e => e.CharacterId == id).FirstOrDefault() != null;
+            return _repository.Characters.GetById(id) != null;
         }
     }
 }

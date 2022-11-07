@@ -63,7 +63,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ClientDTO>> GetClient(int id)
         {
-            var client = await _repository.Clients.FindByCondition(c => c.ClientId == id).FirstOrDefaultAsync();
+            var client = await _repository.Clients.GetByIdAsync(id);
 
             if (client == null)
             {
@@ -71,19 +71,6 @@ namespace GameRental.Controllers
             }
 
             return Ok(_mapper.Map<ClientDTO>(client));
-        }
-        /// <summary>
-        /// Get the rents from a client
-        /// </summary>
-        /// <param name="id">Id of the client</param>
-        /// <returns>A list of rents</returns>
-        /// <response code="200">Returns the list of game rented by this client</response>
-        [HttpGet("{id}/rentals")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<RentDTO>>> GetRents(int id)
-        {
-            var rents = await _repository.Rents.FindByCondition(r => r.ClientId == id).ToListAsync();
-            return Ok(_mapper.Map<List<RentDTO>>(rents));
         }
         /// <summary>
         /// Get the most frecuent client
@@ -108,7 +95,7 @@ namespace GameRental.Controllers
                 return NotFound();
             }
 
-            var client = await _repository.Clients.FindByCondition(c => c.ClientId == result.ClientId).FirstOrDefaultAsync();
+            var client = await _repository.Clients.GetByIdAsync(result.ClientId);
 
             return Ok(_mapper.Map<ClientDTO>(client));
         }
@@ -214,7 +201,7 @@ namespace GameRental.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteClient(int id)
         {
-            var client = await _repository.Clients.FindByCondition(c => c.ClientId == id).FirstOrDefaultAsync();
+            var client = await _repository.Clients.GetByIdAsync(id);
             if (client == null)
             {
                 return NotFound();
@@ -228,7 +215,7 @@ namespace GameRental.Controllers
 
         private bool ClientExists(int id)
         {
-            return _repository.Clients.FindByCondition(c => c.ClientId == id).FirstOrDefault() != null;
+            return _repository.Clients.GetById(id) != null;
         }
     }
 }

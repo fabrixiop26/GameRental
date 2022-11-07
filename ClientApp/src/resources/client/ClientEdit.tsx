@@ -30,7 +30,7 @@ export const ClientEdit = () => (
       <DateInput
         label="Date of Birth"
         source="dob"
-        validate={[required(), maxDate(getToday())]}
+        validate={[required(), maxDate(getToday(), "Can't use future date")]}
       />
     </SimpleForm>
   </Edit>

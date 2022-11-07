@@ -11,7 +11,7 @@ namespace GameRental.DTOModels
 {
     [GenerateAutoFilter]
     [DisplayName("GameViewModel")]
-    public class GameDTO : FilterBase
+    public class GameDTO
     {
         public int GameId { get; set; }
         [StringLength(100)]

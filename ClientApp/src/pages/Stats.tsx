@@ -17,7 +17,11 @@ interface AgeFilter {
 }
 
 const StatsPage = () => {
-  const { register, handleSubmit } = useForm<AgeFilter>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AgeFilter>();
   const [leastRentedGame, setLeastRentedGame] = useState<Game | null>(null);
   const onSubmit = async (data: AgeFilter) => {
     const res = await axios.get<Game>("/api/Rents/LeastRentedGameByAge", {
@@ -109,6 +113,8 @@ const StatsPage = () => {
                   variant="outlined"
                   type="number"
                   {...register("minAge", { min: 1, max: 99, required: true })}
+                  error={!!errors.minAge}
+                  helperText={errors.minAge ? "Invalid Value" : ""}
                 />
                 <TextField
                   id="maxAge"
@@ -116,16 +122,18 @@ const StatsPage = () => {
                   variant="outlined"
                   type="number"
                   {...register("maxAge", { min: 2, max: 100, required: true })}
+                  error={!!errors.maxAge}
+                  helperText={errors.maxAge ? "Invalid Value" : ""}
                 />
               </Stack>
               <Button label="Find" variant="contained" type="submit" />
             </form>
             <br />
-            {leastRentedGame && (
+            {leastRentedGame ? (
               <Link to={`/games/${leastRentedGame.gameId}/show`}>
                 <Typography>{leastRentedGame.name}</Typography>
               </Link>
-            )}
+            ) : "No Game Found"}
           </AccordionDetails>
         </Accordion>
       </CardContent>

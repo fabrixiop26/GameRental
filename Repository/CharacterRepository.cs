@@ -20,5 +20,14 @@ namespace GameRental.Repository
         {
             return PagedList<Character>.ToPagedList(GetAll().ApplyFilterWithoutPagination(_params), _params.Page, _params.PerPage);
         }
+
+        public ValueTask<Character?> GetByIdAsync(int id)
+        {
+            return DbContext.Characters.FindAsync(id);
+        }
+        public Character? GetById(int id)
+        {
+            return DbContext.Characters.Find(id);
+        }
     }
 }
